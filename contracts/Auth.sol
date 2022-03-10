@@ -19,6 +19,8 @@ contract Auth is KeyInfrastructure {
 
     struct FunctionCall {
         string name; // name of the function being called
+        address target;
+        address caller;
         FunctionParam[] parameters; // array of input parameters to the function call
     }
 
@@ -32,16 +34,19 @@ contract Auth is KeyInfrastructure {
 
     bytes32 private constant FUNCTIONPARAM_TYPEHASH = keccak256("FunctionParam(string typ,bytes value)");
 
-    bytes32 private constant FUNCTIONCALL_TYPEHASH = keccak256("FunctionCall(string name,FunctionParam[] parameters)");
+    // solhint-disable max-line-length
+    bytes32 private constant FUNCTIONCALL_TYPEHASH =
+        keccak256("FunctionCall(string name,address target,address caller,FunctionParam[] parameters)");
 
     bytes32 private constant TOKEN_TYPEHASH = keccak256("Token(uint256 expiry,FunctionCall functionCall)");
 
-    bytes32 DOMAIN_SEPARATOR;
+    // solhint-disable var-name-mixedcase
+    bytes32 public DOMAIN_SEPARATOR;
 
     constructor(address root) KeyInfrastructure(root) {
         DOMAIN_SEPARATOR = hash(
             EIP712Domain({
-                name: "Ethereum Access Token",
+                name: "Ethereum Authorization Token",
                 version: "1",
                 chainId: block.chainid,
                 verifyingContract: address(this)
@@ -76,7 +81,16 @@ contract Auth is KeyInfrastructure {
     }
 
     function hash(FunctionCall memory call) internal pure returns (bytes32) {
-        return keccak256(abi.encode(FUNCTIONCALL_TYPEHASH, keccak256(bytes(call.name)), hash(call.parameters)));
+        return
+            keccak256(
+                abi.encode(
+                    FUNCTIONCALL_TYPEHASH,
+                    keccak256(bytes(call.name)),
+                    call.target,
+                    call.caller,
+                    hash(call.parameters)
+                )
+            );
     }
 
     function hash(Token memory token) internal pure returns (bytes32) {
@@ -88,7 +102,7 @@ contract Auth is KeyInfrastructure {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) internal view returns (bool) {
+    ) public view returns (bool) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
         return ecrecover(digest, v, r, s) == _issuer;
     }
