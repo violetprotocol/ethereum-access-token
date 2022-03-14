@@ -1,18 +1,18 @@
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Wallet } from "ethers";
-import { AuthMessageToken, AuthMessageTypes } from "../messages/auth";
+import { VoidSigner, Wallet, Signature } from "ethers";
 import { Domain } from "../messages/erc712";
+import { Mail, MailMessageTypes } from "../messages/mail";
 
 // Returns a 65-byte signature composed of v, r, s components concatenated:
 // https://docs.ethers.io/v5/api/utils/bytes/#signature-raw
-const signAuthMessage = async (
+const signMailMessage = async (
   signer: Wallet | JsonRpcSigner | SignerWithAddress,
   domain: Domain,
-  value: AuthMessageToken,
+  value: Mail,
 ): Promise<string> => {
-  const signature = await signer._signTypedData(domain, AuthMessageTypes, value);
+  const signature = await signer._signTypedData(domain, MailMessageTypes, value);
   return signature;
 };
 
-export default signAuthMessage;
+export default signMailMessage;

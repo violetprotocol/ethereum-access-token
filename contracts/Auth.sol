@@ -36,9 +36,15 @@ contract Auth is KeyInfrastructure {
 
     // solhint-disable max-line-length
     bytes32 private constant FUNCTIONCALL_TYPEHASH =
-        keccak256("FunctionCall(string name,address target,address caller,FunctionParam[] parameters)");
+        keccak256(
+            "FunctionCall(string name,address target,address caller,FunctionParam[] parameters)FunctionParam(string typ,bytes value)"
+        );
 
-    bytes32 private constant TOKEN_TYPEHASH = keccak256("Token(uint256 expiry,FunctionCall functionCall)");
+    // solhint-disable max-line-length
+    bytes32 private constant TOKEN_TYPEHASH =
+        keccak256(
+            "Token(uint256 expiry,FunctionCall functionCall)FunctionCall(string name,address target,address caller,FunctionParam[] parameters)FunctionParam(string typ,bytes value)"
+        );
 
     // solhint-disable var-name-mixedcase
     bytes32 public DOMAIN_SEPARATOR;
@@ -104,6 +110,7 @@ contract Auth is KeyInfrastructure {
         bytes32 s
     ) public view returns (bool) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
+        require(token.expiry > block.timestamp, "Auth: token has expired");
         return ecrecover(digest, v, r, s) == _issuer;
     }
 }
