@@ -2,19 +2,13 @@ import { artifacts, ethers, waffle } from "hardhat";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "./types";
-import { KeyInfrastructure } from "../src/types/KeyInfrastructure";
 import { Auth } from "../src/types/Auth";
-import { AuthMessageToken, AuthMessageTypes } from "../src/messages/auth";
 import signAuthMessage from "../src/utils/signAuthMessage";
-import { recoverTypedSignature, SignTypedDataVersion } from "@metamask/eth-sig-util";
-import { Domain } from "domain";
 
 const chai = require("chai");
-const web3 = require("web3");
-const sigUtil = require("@metamask/eth-sig-util");
 const { solidity } = waffle;
 chai.use(solidity);
-const { expect, assert } = chai;
+const { expect } = chai;
 const { BigNumber } = ethers;
 
 describe("Auth", function () {

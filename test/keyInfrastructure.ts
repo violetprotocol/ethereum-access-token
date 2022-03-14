@@ -5,11 +5,9 @@ import { Signers } from "./types";
 import { KeyInfrastructure } from "../src/types/KeyInfrastructure";
 
 const chai = require("chai");
-const web3 = require("web3");
 const { solidity } = waffle;
 chai.use(solidity);
-const { expect, assert } = chai;
-const { BigNumber } = ethers;
+const { expect } = chai;
 
 describe("Key Infrastructure", function () {
   before(async function () {
