@@ -1,5 +1,30 @@
 # Ethereum Access Token
 
+Implemention of [EIP-712](https://eips.ethereum.org/EIPS/eip-721) for access signed access token verification.
+
+Tokens authorise a user to perform specific on-chain interactions as determined by the token issuer.
+
+Tokens are in the form:
+
+```json
+{
+  "expiry": <unix_seconds-uint256>,
+  "functionCall": {
+    "name": <name_of_function-string>,
+    "target": <contract_address_of_tx_target-string>,
+    "caller": <user_address_of_tx_caller-string>,
+    "parameters": [
+      {
+        "typ": <solidity_type_of_parameter-string>,
+        "value": 0x<hexadecimal_representation_of_parameter_value-string>
+      },
+    ]
+  }
+}
+```
+
+Tokens are signed according to [EIP-712](https://eips.ethereum.org/EIPS/eip-721) using `signTypedData` and are verified on-chain through the `Auth.sol` contract `verify` function.
+
 ## Usage
 
 ### Pre Requisites
