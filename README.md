@@ -10,15 +10,10 @@ Tokens are in the form:
 {
   "expiry": <unix_seconds-uint256>,
   "functionCall": {
-    "name": <name_of_function-string>,
+    "functionSignature": <solidity_function_sig_hex-string>,
     "target": <contract_address_of_tx_target-string>,
     "caller": <user_address_of_tx_caller-string>,
-    "parameters": [
-      {
-        "typ": <solidity_type_of_parameter-string>,
-        "value": 0x<hexadecimal_representation_of_parameter_value-string>
-      },
-    ]
+    "parameters": <hexadecimal_representation_of_parameters-string>
   }
 }
 ```
