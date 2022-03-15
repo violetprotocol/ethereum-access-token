@@ -2,7 +2,8 @@ import { artifacts, ethers, waffle } from "hardhat";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "./types";
-import { Auth } from "../src/types/Auth";
+import { AuthVerifier } from "../src/types/AuthVerifier";
+import { TokenStruct } from "../src/types/IAuthVerifier";
 import signAuthMessage from "../src/utils/signAuthMessage";
 
 const chai = require("chai");
@@ -23,8 +24,10 @@ describe("Auth", function () {
   });
 
   before("deploy new", async function () {
-    const authArtifact: Artifact = await artifacts.readArtifact("Auth");
-    this.auth = <Auth>await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address]);
+    const authArtifact: Artifact = await artifacts.readArtifact("AuthVerifier");
+    this.auth = <AuthVerifier>(
+      await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
+    );
     await this.auth.rotateIntermediate(this.signers.admin.address);
     await this.auth.rotateIssuer(this.signers.admin.address);
   });
@@ -40,15 +43,10 @@ describe("Auth", function () {
     this.value = {
       expiry: 0,
       functionCall: {
-        name: "test",
+        functionSignature: "0x0f694584",
         target: this.auth.address,
         caller: this.signers.admin.address,
-        parameters: [
-          {
-            typ: "uint256",
-            value: "0xff",
-          },
-        ],
+        parameters: "0xff",
       },
     };
   });
@@ -62,16 +60,9 @@ describe("Auth", function () {
 
       const signature = await signAuthMessage(this.signers.admin, this.domain, value);
 
-      const token: Auth.TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
+      const token: TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
 
-      expect(
-        await this.auth.callStatic.verify(
-          token,
-          BigNumber.from("0x".concat(signature.substring(130, 132))), // v uint8
-          "0x".concat(signature.substring(2, 66)), // r bytes32
-          "0x".concat(signature.substring(66, 130)), // s bytes32
-        ),
-      ).to.be.true;
+      expect(await this.auth.callStatic.verify(token, signature)).to.be.true;
     });
 
     it("should fail with expired token", async function () {
@@ -82,16 +73,9 @@ describe("Auth", function () {
 
       const signature = await signAuthMessage(this.signers.admin, this.domain, value);
 
-      const token: Auth.TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
+      const token: TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
 
-      await expect(
-        this.auth.verify(
-          token,
-          BigNumber.from("0x".concat(signature.substring(130, 132))), // v uint8
-          "0x".concat(signature.substring(2, 66)), // r bytes32
-          "0x".concat(signature.substring(66, 130)), // s bytes32
-        ),
-      ).to.be.revertedWith("Auth: token has expired");
+      await expect(this.auth.verify(token, signature)).to.be.revertedWith("Auth: token has expired");
     });
   });
 });

@@ -2,48 +2,21 @@
 pragma solidity >=0.8.4;
 
 import "hardhat/console.sol";
+import "./IAuthVerifier.sol";
 import "./KeyInfrastructure.sol";
 
-contract Auth is KeyInfrastructure {
-    struct EIP712Domain {
-        string name;
-        string version;
-        uint256 chainId;
-        address verifyingContract;
-    }
-
-    struct FunctionParam {
-        string typ; // explicit full solidity atomic type of the parameter
-        bytes value; // the byte formatted parameter value
-    }
-
-    struct FunctionCall {
-        string name; // name of the function being called
-        address target;
-        address caller;
-        FunctionParam[] parameters; // array of input parameters to the function call
-    }
-
-    struct Token {
-        uint256 expiry;
-        FunctionCall functionCall;
-    }
-
+contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
     bytes32 private constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-    bytes32 private constant FUNCTIONPARAM_TYPEHASH = keccak256("FunctionParam(string typ,bytes value)");
-
     // solhint-disable max-line-length
     bytes32 private constant FUNCTIONCALL_TYPEHASH =
-        keccak256(
-            "FunctionCall(string name,address target,address caller,FunctionParam[] parameters)FunctionParam(string typ,bytes value)"
-        );
+        keccak256("FunctionCall(bytes4 functionSignature,address target,address caller,bytes parameters)");
 
     // solhint-disable max-line-length
     bytes32 private constant TOKEN_TYPEHASH =
         keccak256(
-            "Token(uint256 expiry,FunctionCall functionCall)FunctionCall(string name,address target,address caller,FunctionParam[] parameters)FunctionParam(string typ,bytes value)"
+            "Token(uint256 expiry,FunctionCall functionCall)FunctionCall(bytes4 functionSignature,address target,address caller,bytes parameters)"
         );
 
     // solhint-disable var-name-mixedcase
@@ -73,28 +46,15 @@ contract Auth is KeyInfrastructure {
             );
     }
 
-    function hash(FunctionParam memory param) internal pure returns (bytes32) {
-        return keccak256(abi.encode(FUNCTIONPARAM_TYPEHASH, keccak256(bytes(param.typ)), keccak256(param.value)));
-    }
-
-    function hash(FunctionParam[] memory params) internal pure returns (bytes32) {
-        bytes memory res;
-        for (uint256 i = 0; i < params.length; i++) {
-            res = bytes.concat(res, abi.encodePacked(hash(params[i])));
-        }
-
-        return keccak256(res);
-    }
-
     function hash(FunctionCall memory call) internal pure returns (bytes32) {
         return
             keccak256(
                 abi.encode(
                     FUNCTIONCALL_TYPEHASH,
-                    keccak256(bytes(call.name)),
+                    call.functionSignature,
                     call.target,
                     call.caller,
-                    hash(call.parameters)
+                    keccak256(call.parameters)
                 )
             );
     }
@@ -103,14 +63,40 @@ contract Auth is KeyInfrastructure {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
-    function verify(
-        Token memory token,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public view returns (bool) {
+    function verify(Token memory token, bytes memory sig) public view override returns (bool) {
+        (bytes32 r, bytes32 s, uint8 v) = splitSignature(sig);
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
         require(token.expiry > block.timestamp, "Auth: token has expired");
         return ecrecover(digest, v, r, s) == _issuer;
+    }
+
+    function splitSignature(bytes memory sig)
+        internal
+        pure
+        returns (
+            bytes32 r,
+            bytes32 s,
+            uint8 v
+        )
+    {
+        require(sig.length == 65, "invalid signature length");
+
+        assembly {
+            /*
+            First 32 bytes stores the length of the signature
+
+            add(sig, 32) = pointer of sig + 32
+            effectively, skips first 32 bytes of signature
+
+            mload(p) loads next 32 bytes starting at the memory address p into memory
+            */
+
+            // first 32 bytes, after the length prefix
+            r := mload(add(sig, 32))
+            // second 32 bytes
+            s := mload(add(sig, 64))
+            // final byte (first byte of the next 32 bytes)
+            v := byte(0, mload(add(sig, 96)))
+        }
     }
 }
