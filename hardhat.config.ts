@@ -35,13 +35,14 @@ const chainIds = {
   optimism: 10,
   polygon: 137,
   rinkeby: 4,
+  kovan: 42,
 };
 
 function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
-  const url: string = "wss://" + network + ".infura.io/ws/v3/" + infuraApiKey;
+  const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
   return {
     accounts: {
-      count: 10,
+      count: 20,
       mnemonic,
       path: "m/44'/60'/0'/0",
     },
@@ -52,17 +53,6 @@ function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
-  etherscan: {
-    apiKey: {
-      arbitrumOne: process.env.ARBSCAN_API_KEY,
-      avalanche: process.env.SNOWTRACE_API_KEY,
-      bsc: process.env.BSCSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      optimisticEthereum: process.env.OPTIMISM_API_KEY,
-      polygon: process.env.POLYGONSCAN_API_KEY,
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-    },
-  },
   gasReporter: {
     currency: "USD",
     enabled: process.env.REPORT_GAS ? true : false,
@@ -83,6 +73,7 @@ const config: HardhatUserConfig = {
     optimism: getChainConfig("optimism"),
     polygon: getChainConfig("polygon"),
     rinkeby: getChainConfig("rinkeby"),
+    kovan: getChainConfig("kovan"),
   },
   paths: {
     artifacts: "./artifacts",

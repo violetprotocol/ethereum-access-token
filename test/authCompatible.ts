@@ -6,6 +6,7 @@ import { AuthVerifier } from "../src/types/AuthVerifier";
 import { TokenStruct } from "../src/types/IAuthVerifier";
 import { DummyDapp } from "../src/types/DummyDapp";
 import signAuthMessage from "../src/utils/signAuthMessage";
+import packDummyParameters from "../src/utils/dummy";
 
 const chai = require("chai");
 const { solidity } = waffle;
@@ -52,9 +53,7 @@ describe("AuthCompatible", function () {
         target: this.dapp.address.toLowerCase(),
         caller: this.signers.admin.address.toLowerCase(),
         // Parameters are hexadecimally represented, left-padded with 0 to multiples of 64-characters (32-bytes), and concatenated together
-        parameters: `0x${this.dapp.address.toLowerCase().substring(2).padStart(64, "0")}${this.amount
-          .toString(16)
-          .padStart(64, "0")}`,
+        parameters: packDummyParameters(this.dapp.address, this.amount),
       },
     };
   });

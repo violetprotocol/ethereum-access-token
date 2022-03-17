@@ -66,6 +66,7 @@ contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
     function verify(Token memory token, bytes memory sig) public view override returns (bool) {
         (bytes32 r, bytes32 s, uint8 v) = splitSignature(sig);
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
+
         require(token.expiry > block.timestamp, "Auth: token has expired");
         return ecrecover(digest, v, r, s) == _issuer;
     }
