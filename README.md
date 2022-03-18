@@ -20,6 +20,32 @@ Tokens are in the form:
 
 Tokens are signed according to [EIP-712](https://eips.ethereum.org/EIPS/eip-721) using `signTypedData` and are verified on-chain through the `Auth.sol` contract `verify` function.
 
+Parameters are abi-encoded similarly to how solidity does it. This is to ensure that we are signing the data that we expect to see during the transaction. Due to the entrypoint transaction containing signature-relevant parts, these parameters will be excluding all parts relating to the signature and expiry of the AuthToken. Example:
+
+If the function to be called is the following:
+
+```solidity
+function transfer(address recipient, uint256 amount) public;
+
+```
+
+then the version that requires authorisation is the following:
+
+```solidity
+function tranfer(
+  uint8 v,
+  bytes32 r,
+  bytes32 s,
+  uint256 expiry,
+  address recipient,
+  uint256 amount
+) public requiresAuth;
+
+```
+
+and parameters to the function are the original `address recipient` and `uint256 amount` which will be encoded as follows:
+`abi.encodeWithSignature('transfer(address,uint256)', recipient, amount)`
+
 ## Usage
 
 ### Pre Requisites
