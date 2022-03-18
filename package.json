@@ -85,7 +85,5 @@
     "test": "hardhat test",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
   },
-  "dependencies": {
-    "@metamask/eth-sig-util": "^4.0.0"
-  }
+  "dependencies": {}
 }

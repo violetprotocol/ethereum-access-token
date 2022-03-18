@@ -3,10 +3,11 @@ import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "./types";
 import { AuthVerifier } from "../src/types/AuthVerifier";
-import { TokenStruct } from "../src/types/IAuthVerifier";
+import { AuthTokenStruct } from "../src/types/IAuthVerifier";
 import { DummyDapp } from "../src/types/DummyDapp";
 import signAuthMessage from "../src/utils/signAuthMessage";
 import packDummyParameters from "../src/utils/dummy";
+import { splitSignature } from "@ethersproject/bytes";
 
 const chai = require("chai");
 const { solidity } = waffle;
@@ -45,90 +46,166 @@ describe("AuthCompatible", function () {
     };
 
     this.amount = 5;
+    this.testTokenAddress = "0x25af0cca791baee922d9fa0744880ae6e0422021";
 
     this.value = {
       expiry: Math.floor(new Date().getTime() / 1000) + 50,
       functionCall: {
-        functionSignature: "0xb50e969c",
+        functionSignature: "0xdbbfb456",
         target: this.dapp.address.toLowerCase(),
         caller: this.signers.admin.address.toLowerCase(),
         // Parameters are hexadecimally represented, left-padded with 0 to multiples of 64-characters (32-bytes), and concatenated together
-        parameters: packDummyParameters(this.dapp.address, this.amount),
+        parameters: packDummyParameters(this.testTokenAddress, this.amount),
       },
     };
   });
 
   describe("sign and verify", async () => {
     it("should succeed", async function () {
-      const signature = await signAuthMessage(this.signers.admin, this.domain, this.value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
-      expect(await this.dapp.lend(signature, BigNumber.from(this.value.expiry), this.dapp.address, this.amount)).to.be
-        .true;
+      expect(
+        await this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(this.value.expiry),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.true;
     });
 
     it("should fail with expired token", async function () {
       // The data to sign
       const value = { ...this.value, expiry: this.value.expiry - 50 };
 
-      const signature = await signAuthMessage(this.signers.admin, this.domain, value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(value.expiry - 50), this.dapp.address, this.amount),
-      ).to.be.revertedWith("Auth: token has expired");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(value.expiry - 50),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: has expired");
     });
 
     it("should fail with wrong signer", async function () {
-      const signature = await signAuthMessage(this.signers.user0, this.domain, this.value);
+      const signature = splitSignature(await signAuthMessage(this.signers.user0, this.domain, this.value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(this.value.expiry), this.dapp.address, this.amount),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(this.value.expiry),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
 
     it("should fail with incorrect expiry", async function () {
-      const signature = await signAuthMessage(this.signers.admin, this.domain, this.value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(this.value.expiry + 10), this.dapp.address, this.amount),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(this.value.expiry + 10),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
+    });
+
+    it("should fail with incorrect function signature", async function () {
+      // The data to sign
+      const value = { ...this.value, functionCall: { ...this.value.functionCall, functionSignature: "0xb50e969c" } };
+
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, value));
+
+      await expect(
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(value.expiry),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
 
     it("should fail with incorrect target contract", async function () {
       // The data to sign
       const value = { ...this.value, functionCall: { ...this.value.functionCall, target: this.auth.address } };
 
-      const signature = await signAuthMessage(this.signers.admin, this.domain, value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(value.expiry), this.dapp.address, this.amount),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(value.expiry),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
 
     it("should fail with incorrect caller", async function () {
       // The data to sign
       const value = { ...this.value, functionCall: { ...this.value.functionCall, caller: this.auth.address } };
 
-      const signature = await signAuthMessage(this.signers.admin, this.domain, value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(value.expiry), this.dapp.address, this.amount),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(value.expiry),
+          this.testTokenAddress,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
 
     it("should fail with incorrect token address", async function () {
-      const signature = await signAuthMessage(this.signers.admin, this.domain, this.value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(this.value.expiry), this.auth.address, this.amount),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(this.value.expiry),
+          this.auth.address,
+          this.amount,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
 
     it("should fail with incorrect amount", async function () {
-      const signature = await signAuthMessage(this.signers.admin, this.domain, this.value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
       await expect(
-        this.dapp.lend(signature, BigNumber.from(this.value.expiry), this.dapp.address, 6),
-      ).to.be.revertedWith("Auth: token verification failure");
+        this.dapp.lend(
+          signature.v,
+          signature.r,
+          signature.s,
+          BigNumber.from(this.value.expiry),
+          this.testTokenAddress,
+          6,
+        ),
+      ).to.be.revertedWith("AuthToken: verification failure");
     });
   });
 });

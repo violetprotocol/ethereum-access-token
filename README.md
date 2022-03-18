@@ -1,6 +1,6 @@
 # Ethereum Access Token
 
-Implemention of [EIP-712](https://eips.ethereum.org/EIPS/eip-721) for access signed access token verification.
+Implemention of [EIP-712](https://eips.ethereum.org/EIPS/eip-721) for signed access token verification.
 
 Tokens authorise a user to perform specific on-chain interactions as determined by the token issuer.
 

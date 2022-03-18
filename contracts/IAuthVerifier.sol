@@ -8,10 +8,10 @@ struct EIP712Domain {
     address verifyingContract;
 }
 
-struct FunctionParam {
-    string typ; // explicit full solidity atomic type of the parameter
-    bytes value; // the byte formatted parameter value
-}
+// struct FunctionParam {
+//     string typ; // explicit full solidity atomic type of the parameter
+//     bytes value; // the byte formatted parameter value
+// }
 
 struct FunctionCall {
     // string name; // name of the function being called
@@ -22,11 +22,16 @@ struct FunctionCall {
     // FunctionParam[] parameters; // array of input parameters to the function call
 }
 
-struct Token {
+struct AuthToken {
     uint256 expiry;
     FunctionCall functionCall;
 }
 
 interface IAuthVerifier {
-    function verify(Token memory token, bytes memory sig) external view returns (bool);
+    function verify(
+        AuthToken memory token,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external view returns (bool);
 }

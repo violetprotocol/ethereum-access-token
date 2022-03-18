@@ -3,8 +3,9 @@ import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "./types";
 import { AuthVerifier } from "../src/types/AuthVerifier";
-import { TokenStruct } from "../src/types/IAuthVerifier";
+import { AuthTokenStruct } from "../src/types/IAuthVerifier";
 import signAuthMessage from "../src/utils/signAuthMessage";
+import { splitSignature } from "@ethersproject/bytes";
 
 const chai = require("chai");
 const { solidity } = waffle;
@@ -41,7 +42,7 @@ describe("Auth", function () {
     };
 
     this.value = {
-      expiry: 0,
+      expiry: Math.floor(new Date().getTime() / 1000) + 10,
       functionCall: {
         functionSignature: "0x0f694584",
         target: this.auth.address,
@@ -53,29 +54,72 @@ describe("Auth", function () {
 
   describe("sign and verify", async () => {
     it("should succeed", async function () {
-      const expiry = Math.floor(new Date().getTime() / 1000) + 10;
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
 
-      // The data to sign
-      const value = { ...this.value, expiry };
-
-      const signature = await signAuthMessage(this.signers.admin, this.domain, value);
-
-      const token: TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
-
-      expect(await this.auth.callStatic.verify(token, signature)).to.be.true;
+      expect(await this.auth.callStatic.verify(this.value, signature.v, signature.r, signature.s)).to.be.true;
     });
 
     it("should fail with expired token", async function () {
-      const expiry = Math.floor(new Date().getTime() / 1000);
-
       // The data to sign
-      const value = { ...this.value, expiry };
+      const value = { ...this.value, expiry: this.value.expiry - 10 };
 
-      const signature = await signAuthMessage(this.signers.admin, this.domain, value);
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, value));
 
-      const token: TokenStruct = { ...value, expiry: BigNumber.from(expiry) };
+      await expect(this.auth.verify(value, signature.v, signature.r, signature.s)).to.be.revertedWith(
+        "AuthToken: has expired",
+      );
+    });
 
-      await expect(this.auth.verify(token, signature)).to.be.revertedWith("Auth: token has expired");
+    it("should fail with incorrect expiry", async function () {
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
+
+      const badToken: AuthTokenStruct = { ...this.value, expiry: BigNumber.from(this.value.expiry + 10) };
+
+      expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
+    });
+
+    it("should fail with incorrect function signature", async function () {
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
+
+      const badToken: AuthTokenStruct = {
+        ...this.value,
+        functionCall: { ...this.value.functionCall, functionSignature: "0xdeadbeef" },
+      };
+
+      expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
+    });
+
+    it("should fail with incorrect target address", async function () {
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
+
+      const badToken: AuthTokenStruct = {
+        ...this.value,
+        functionCall: { ...this.value.functionCall, target: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
+      };
+
+      expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
+    });
+
+    it("should fail with incorrect caller address", async function () {
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
+
+      const badToken: AuthTokenStruct = {
+        ...this.value,
+        functionCall: { ...this.value.functionCall, caller: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
+      };
+
+      expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
+    });
+
+    it("should fail with incorrect function parameters", async function () {
+      const signature = splitSignature(await signAuthMessage(this.signers.admin, this.domain, this.value));
+
+      const badToken: AuthTokenStruct = {
+        ...this.value,
+        functionCall: { ...this.value.functionCall, parameters: "0xdd" },
+      };
+
+      expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
     });
   });
 });
