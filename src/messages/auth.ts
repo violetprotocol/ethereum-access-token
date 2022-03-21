@@ -1,5 +1,7 @@
-interface AuthMessageToken {
-  expiry: number;
+import { BigNumberish } from "ethers";
+
+interface AuthToken {
+  expiry: BigNumberish;
   functionCall: FunctionCall;
 }
 
