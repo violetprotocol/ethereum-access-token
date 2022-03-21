@@ -26,4 +26,4 @@ const AuthMessageTypes = {
   ],
 };
 
-export { AuthMessageToken, FunctionCall, AuthMessageTypes };
+export { AuthToken, FunctionCall, AuthMessageTypes };
