@@ -1,3 +1,3 @@
-import "./auth";
-import "./mail";
-import "./erc712";
+export { AuthToken, FunctionCall, AuthMessageTypes } from "./auth";
+export { Mail, Person, MailMessageTypes } from "./mail";
+export { Domain } from "./erc712";

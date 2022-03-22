@@ -6,4 +6,4 @@ const packParameters = (address: string, amount: number): string => {
   return `0x${address.toLowerCase().substring(2).padStart(64, "0")}${amount.toString(16).padStart(64, "0")}`;
 };
 
-export default packParameters;
+export { packParameters };

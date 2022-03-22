@@ -1,10 +1,9 @@
 {
-  "name": "@paulrberg/solidity-template",
-  "description": "Template for writing Solidity smart contracts",
-  "version": "1.0.0",
+  "name": "@violetprotocol/ethereum-access-token",
+  "description": "Smart contracts for on-chain token-based access",
+  "version": "0.1.0",
   "author": {
-    "name": "Paul Razvan Berg",
-    "url": "https://paulrberg.com"
+    "name": "papasmurf"
   },
   "devDependencies": {
     "@codechecks/client": "^0.1.12",
@@ -53,7 +52,7 @@
     "ts-generator": "^0.1.1",
     "ts-node": "^10.5.0",
     "typechain": "^7.0.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.2"
   },
   "files": [
     "/contracts"
@@ -77,6 +76,7 @@
     "lint": "yarn lint:sol && yarn lint:ts && yarn prettier:check",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
+    "prepare": "yarn clean && env COMPILE_MODE=production yarn compile && yarn typechain",
     "postinstall": "husky install",
     "postpublish": "pinst --enable",
     "prepublishOnly": "pinst --disable",
@@ -84,6 +84,5 @@
     "prettier:check": "prettier --check --config ./.prettierrc.yaml \"**/*.{js,json,md,sol,ts}\"",
     "test": "hardhat test",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
-  },
-  "dependencies": {}
+  }
 }

@@ -15,4 +15,4 @@ const signMailMessage = async (
   return signature;
 };
 
-export default signMailMessage;
+export { signMailMessage };
