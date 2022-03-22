@@ -3,7 +3,7 @@ import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "./types";
 import { EtherMail } from "../src/types/EtherMail";
-import signMailMessage from "../src/utils/signMailMessage";
+import { signMailMessage } from "../src/utils/signMailMessage";
 
 const chai = require("chai");
 const web3 = require("web3");

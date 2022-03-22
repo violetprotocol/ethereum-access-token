@@ -5,8 +5,8 @@ import { Signers } from "./types";
 import { AuthVerifier } from "../src/types/AuthVerifier";
 import { AuthTokenStruct } from "../src/types/IAuthVerifier";
 import { DummyDapp } from "../src/types/DummyDapp";
-import signAuthMessage from "../src/utils/signAuthMessage";
-import packDummyParameters from "../src/utils/dummy";
+import { signAuthMessage } from "../src/utils/signAuthMessage";
+import { packParameters as packDummyParameters } from "../src/utils/dummy";
 import { splitSignature } from "@ethersproject/bytes";
 
 const chai = require("chai");

@@ -4,7 +4,7 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signe
 import { Signers } from "./types";
 import { AuthVerifier } from "../src/types/AuthVerifier";
 import { AuthTokenStruct } from "../src/types/IAuthVerifier";
-import signAuthMessage from "../src/utils/signAuthMessage";
+import { signAuthMessage } from "../src/utils/signAuthMessage";
 import { splitSignature } from "@ethersproject/bytes";
 
 const chai = require("chai");
