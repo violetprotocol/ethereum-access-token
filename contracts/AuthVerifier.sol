@@ -24,7 +24,7 @@ contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
     constructor(address root) KeyInfrastructure(root) {
         DOMAIN_SEPARATOR = hash(
             EIP712Domain({
-                name: "Ethereum Authorization Token",
+                name: "Ethereum Access Token",
                 version: "1",
                 chainId: block.chainid,
                 verifyingContract: address(this)

@@ -39,7 +39,7 @@ describe("AuthCompatible", function () {
 
   before("construct test values", async function () {
     this.domain = {
-      name: "Ethereum Authorization Token",
+      name: "Ethereum Access Token",
       version: "1",
       chainId: await this.signers.admin.getChainId(),
       verifyingContract: this.auth.address,
