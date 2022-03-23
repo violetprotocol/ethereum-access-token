@@ -1,17 +1,5 @@
 import { BigNumberish } from "ethers";
 
-interface AuthToken {
-  expiry: BigNumberish;
-  functionCall: FunctionCall;
-}
-
-interface FunctionCall {
-  functionSignature: string;
-  target: string;
-  caller: string;
-  parameters: string;
-}
-
 // The named list of all type definitions
 const AuthMessageTypes = {
   FunctionCall: [
@@ -26,4 +14,4 @@ const AuthMessageTypes = {
   ],
 };
 
-export { AuthToken, FunctionCall, AuthMessageTypes };
+export { AuthMessageTypes };

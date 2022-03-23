@@ -1,3 +1,3 @@
-export { AuthToken, FunctionCall, AuthMessageTypes } from "./auth";
-export { Mail, Person, MailMessageTypes } from "./mail";
+export { AuthMessageTypes } from "./auth";
+export { MailMessageTypes } from "./mail";
 export { Domain } from "./erc712";

@@ -1,14 +1,3 @@
-interface Mail {
-  from: Person;
-  to: Person;
-  contents: string;
-}
-
-interface Person {
-  name: string;
-  wallet: string;
-}
-
 // The named list of all type definitions
 const MailMessageTypes = {
   Person: [
@@ -22,4 +11,4 @@ const MailMessageTypes = {
   ],
 };
 
-export { Mail, Person, MailMessageTypes };
+export { MailMessageTypes };
