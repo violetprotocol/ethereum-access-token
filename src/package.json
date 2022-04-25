@@ -1,0 +1,30 @@
+{
+  "name": "@violetprotocol/ethereum-access-token-helpers",
+  "description": "Typescript bindings and utilities for Ethereum Access Token",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepare": "bash ../scripts/prepare-artifacts.sh && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/violetprotocol/ethereum-access-token.git"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "access",
+    "token"
+  ],
+  "author": "papasmurf",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/violetprotocol/ethereum-access-token/issues"
+  },
+  "homepage": "https://github.com/violetprotocol/ethereum-access-token#readme"
+}
