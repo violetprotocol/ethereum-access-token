@@ -55,8 +55,8 @@ contract AuthCompatible {
             let endOfSigExp := add(startPos, 0x80)
             let totalInputSize := sub(calldatasize(), endOfSigExp)
 
-            // disgusting dirty putrid abomination of a detestable drivelous hack
-            // because for some reason byte array pointers are being assigned the same address as another causing overwrite
+            // disgusting dirty putrid abomination of a detestable drivelous hack because
+            // for some reason byte array pointers are being assigned the same address as another causing overwrite
             inputs := add(inputs, mul(calldatasize(), 2))
 
             // Store expected length of total byte array as first value
