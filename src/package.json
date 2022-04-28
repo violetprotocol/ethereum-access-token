@@ -1,10 +1,10 @@
 {
   "name": "@violetprotocol/ethereum-access-token-helpers",
   "description": "Typescript bindings and utilities for Ethereum Access Token",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist/*"
   ],
   "scripts": {
     "prepare": "bash ../scripts/prepare-artifacts.sh && tsc"

@@ -1,10 +1,13 @@
 {
   "name": "@violetprotocol/ethereum-access-token",
   "description": "Smart contracts for on-chain token-based access",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "papasmurf"
   },
+  "files": [
+    "contracts"
+  ],
   "devDependencies": {
     "@codechecks/client": "^0.1.12",
     "@commitlint/cli": "^16.2.1",
@@ -54,9 +57,6 @@
     "typechain": "^7.0.0",
     "typescript": "^4.6.2"
   },
-  "files": [
-    "/contracts"
-  ],
   "keywords": [
     "blockchain",
     "ethereum",
@@ -77,7 +77,7 @@
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
     "prepare": "yarn clean && env COMPILE_MODE=production yarn compile && yarn typechain",
-    "postinstall": "husky install",
+    "_postinstall": "husky install",
     "postpublish": "pinst --enable",
     "prepublishOnly": "pinst --disable",
     "prettier": "prettier --config ./.prettierrc.yaml --write \"**/*.{js,json,md,sol,ts}\"",
