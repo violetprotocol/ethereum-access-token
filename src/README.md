@@ -21,7 +21,7 @@ Using yarn:
 ## Usage
 
 ```typescript
-import { splitSignature } from "@ethersproject/bytes";
+const { splitSignature } = require("@ethersproject/bytes");
 const {
   signAuthMessage,
   getSignerFromMnemonic, getSignerFromPrivateKey
@@ -35,6 +35,9 @@ const SIGNER: ethers.Signer = ...;
 const CALLER: ethers.Signer = ...;
 const VERIFIER = "0x..."; // AuthVerifier contract address
 
+const recipient = "0x123...";
+const amount = 1;
+
 // AuthToken domain for clear namespacing
 const authDomain = {
   name: "Ethereum Access Token",
@@ -43,19 +46,23 @@ const authDomain = {
   verifyingContract: VERIFIER,
 };
 
-// Construct AuthToken message with relevant data
+// Construct AuthToken message with relevant data using ERC20 `transfer(address to, uint256 amount)` as the example tx
+// In the Auth compatible case, the ERC20 transfer function actually looks like this:
+// `transfer(uint8 v, bytes32 r, bytes32 s, uint256 expiry, address to, uint256 amount)`
+// where we just augment the original function with the required parameters for auth
+// the `parameters` property takes a packed, abi-encoded set of original function parameters
 const authMessage = {
   expiry: Math.floor(new Date().getTime() / 1000) + interval,
   functionCall: {
     functionSignature:  FUNCTION_SIGNATURE,
     target:             CONTRACT.address.toLowerCase(),
     caller:             CALLER.address.toLowerCase(),
-    parameters:         packParameters(CONTRACT.interface, "functionName", [...params]),
+    parameters:         packParameters(CONTRACT.interface, "transfer", [recipient, amount]),
   },
 };
 
 // Sign the AuthToken using the Signer
-const signature = splitSignature(await signAuthMessage(SIGNER, this.domain, authMessage));
+const signature = splitSignature(await signAuthMessage(SIGNER, authDomain, authMessage));
 
 // Pass all signed data to a transaction function call
 await CONTRACT.functionName(

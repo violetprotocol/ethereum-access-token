@@ -1,11 +1,15 @@
 import { hexlify } from "@ethersproject/bytes";
 import { ethers } from "ethers";
 
-const packParameters = (contractInterface: ethers.utils.Interface, functionName: string, params: any[]): string => {
+const packParameters = (
+  contractInterface: ethers.utils.Interface,
+  functionNameOrSelector: string,
+  params: any[],
+): string => {
   // detect function fragment
-  const functionFragment = contractInterface.getFunction(functionName);
+  const functionFragment = contractInterface.getFunction(functionNameOrSelector);
 
-  // check is selected function fragment complies with auth compatible function format:
+  // check if selected function fragment complies with auth compatible function format:
   // functionName(uint8 v, bytes32 r, bytes32 s, uint256 expiry, ...)
   if (!isAuthCompatible(functionFragment)) throw "packParameters: specified function is not AuthCompatible";
 
