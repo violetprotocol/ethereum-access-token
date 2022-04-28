@@ -30,7 +30,7 @@ const {
 
 const INTERVAL: number = 100 // seconds
 const FUNCTION_SIGNATURE = "0xabcdefgh";
-const CONTRACT: ethers.Contract = ...;
+const CONTRACT: ethers.Contract = ...; // for example an ERC20 token contract
 const SIGNER: ethers.Signer = ...;
 const CALLER: ethers.Signer = ...;
 const VERIFIER = "0x..."; // AuthVerifier contract address
