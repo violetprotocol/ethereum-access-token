@@ -6,7 +6,7 @@ import { AuthVerifier } from "../src/types/AuthVerifier";
 import { AuthTokenStruct } from "../src/types/IAuthVerifier";
 import { DummyDapp } from "../src/types/DummyDapp";
 import { signAuthMessage } from "../src/utils/signAuthMessage";
-import { packParameters as packDummyParameters } from "../src/utils/dummy";
+import { packParameters } from "../src/utils/packParameters";
 import { splitSignature } from "@ethersproject/bytes";
 
 const chai = require("chai");
@@ -55,7 +55,7 @@ describe("AuthCompatible", function () {
         target: this.dapp.address.toLowerCase(),
         caller: this.signers.admin.address.toLowerCase(),
         // Parameters are hexadecimally represented, left-padded with 0 to multiples of 64-characters (32-bytes), and concatenated together
-        parameters: packDummyParameters(this.testTokenAddress, this.amount),
+        parameters: packParameters(this.dapp.interface, "lend", [this.testTokenAddress, this.amount]),
       },
     };
   });
