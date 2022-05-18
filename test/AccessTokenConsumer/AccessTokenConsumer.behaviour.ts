@@ -363,7 +363,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.r,
                 this.signature.s,
                 this.value.expiry,
-                this.params,
+                this.params[0],
               ),
             ).to.be.true;
           });
