@@ -59,6 +59,9 @@ const config: HardhatUserConfig = {
     excludeContracts: [],
     src: "./contracts",
   },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
   networks: {
     hardhat: {
       accounts: {
@@ -73,7 +76,11 @@ const config: HardhatUserConfig = {
     optimism: getChainConfig("optimism"),
     polygon: getChainConfig("polygon"),
     rinkeby: getChainConfig("rinkeby"),
-    kovan: getChainConfig("kovan"),
+    kovan: {
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+      chainId: 42,
+      url: "https://kovan.infura.io/v3/27b5f204226a4ceeb06fc5761a8e7fa0",
+    },
   },
   paths: {
     artifacts: "./artifacts",
@@ -82,7 +89,7 @@ const config: HardhatUserConfig = {
     tests: "./test",
   },
   solidity: {
-    version: "0.8.9",
+    version: "0.8.13",
     settings: {
       metadata: {
         // Not including the metadata hash
