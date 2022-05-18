@@ -10,6 +10,7 @@ declare module "mocha" {
     verifier: AccessTokenVerifier;
     dapp: DummyDapp;
     mock: ConsumerMock;
+    fakeMock: ConsumerMock;
     loadFixture: <T>(fixture: Fixture<T>) => Promise<T>;
     signers: Signers;
   }

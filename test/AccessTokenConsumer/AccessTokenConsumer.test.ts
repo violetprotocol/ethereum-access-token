@@ -37,6 +37,7 @@ describe("AccessTokenConsumer", function () {
     await this.auth.rotateIntermediate(this.signers.admin.address);
     await this.auth.rotateIssuer(this.signers.admin.address);
     this.mock = <ConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact, [this.auth.address]);
+    this.fakeMock = <ConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact, [this.auth.address]);
   });
 
   before("construct test values", async function () {
@@ -48,5 +49,5 @@ describe("AccessTokenConsumer", function () {
     };
   });
 
-  // shouldBehaveLikeAccessTokenConsumer();
+  shouldBehaveLikeAccessTokenConsumer();
 });

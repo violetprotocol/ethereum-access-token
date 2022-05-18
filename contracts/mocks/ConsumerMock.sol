@@ -7,6 +7,15 @@ import "../AccessTokenConsumer.sol";
 contract ConsumerMock is AccessTokenConsumer {
     constructor(address verifier) AccessTokenConsumer(verifier) {}
 
+    function noParams(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 expiry
+    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        return true;
+    }
+
     function singleAddress(
         uint8 v,
         bytes32 r,
