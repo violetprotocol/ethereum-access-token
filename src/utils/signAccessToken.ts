@@ -1,7 +1,7 @@
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Wallet } from "ethers";
-import { AuthMessageTypes } from "../messages/auth";
+import { AuthMessageTypes } from "../messages/accessToken";
 import { Domain } from "../messages/erc712";
 import { AccessTokenStruct } from "../types/IAccessTokenVerifier";
 

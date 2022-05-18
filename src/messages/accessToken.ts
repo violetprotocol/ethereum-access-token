@@ -8,7 +8,7 @@ const AuthMessageTypes = {
     { name: "caller", type: "address" },
     { name: "parameters", type: "bytes" },
   ],
-  AuthToken: [
+  AccessToken: [
     { name: "expiry", type: "uint256" },
     { name: "functionCall", type: "FunctionCall" },
   ],
