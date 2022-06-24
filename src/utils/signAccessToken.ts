@@ -1,7 +1,7 @@
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Wallet } from "ethers";
-import { AuthMessageTypes } from "../messages/accessToken";
+import { AccessTokenTypes } from "../messages/accessToken";
 import { Domain } from "../messages/erc712";
 import { AccessTokenStruct } from "../types/IAccessTokenVerifier";
 
@@ -12,7 +12,7 @@ const signAccessToken = async (
   domain: Domain,
   value: AccessTokenStruct,
 ): Promise<string> => {
-  const signature = await signer._signTypedData(domain, AuthMessageTypes, value);
+  const signature = await signer._signTypedData(domain, AccessTokenTypes, value);
   return signature;
 };
 

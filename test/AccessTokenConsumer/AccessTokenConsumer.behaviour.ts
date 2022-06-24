@@ -1,8 +1,4 @@
-import { artifacts, ethers, waffle } from "hardhat";
-import type { Artifact } from "hardhat/types";
-import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { Signers } from "../types";
-import { DummyDapp } from "../../src/types/DummyDapp";
+import { ethers, waffle } from "hardhat";
 import { signAccessToken } from "../../src/utils/signAccessToken";
 import { packParameters } from "../../src/utils/packParameters";
 import { splitSignature } from "@ethersproject/bytes";

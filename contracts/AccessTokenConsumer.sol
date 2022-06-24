@@ -7,8 +7,8 @@ import "./IAccessTokenVerifier.sol";
 contract AccessTokenConsumer {
     IAccessTokenVerifier private _verifier;
 
-    constructor(address authVerifier) {
-        _verifier = IAccessTokenVerifier(authVerifier);
+    constructor(address accessTokenVerifier) {
+        _verifier = IAccessTokenVerifier(accessTokenVerifier);
     }
 
     modifier requiresAuth(

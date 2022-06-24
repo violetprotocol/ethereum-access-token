@@ -1,2 +1,2 @@
-export { AuthMessageTypes } from "./accessToken";
+export { AccessTokenTypes } from "./accessToken";
 export { Domain } from "./erc712";
