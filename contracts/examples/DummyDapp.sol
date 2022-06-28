@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import "hardhat/console.sol";
-import "./AuthCompatible.sol";
+import "../AccessTokenConsumer.sol";
 
-contract DummyDapp is AuthCompatible {
-    constructor(address verifier) AuthCompatible(verifier) {}
+contract DummyDapp is AccessTokenConsumer {
+    constructor(address verifier) AccessTokenConsumer(verifier) {}
 
     function lend(
         uint8 v,

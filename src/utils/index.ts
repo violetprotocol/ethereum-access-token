@@ -1,4 +1,3 @@
-export { signAuthMessage } from "./signAuthMessage";
-export { signMailMessage } from "./signMailMessage";
+export { signAccessToken } from "./signAccessToken";
 export { getSignerFromMnemonic, getSignerFromPrivateKey } from "./signer";
 export { packParameters } from "./packParameters";
