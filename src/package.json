@@ -1,7 +1,7 @@
 {
   "name": "@violetprotocol/ethereum-access-token-helpers",
   "description": "Typescript bindings and utilities for Ethereum Access Token",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "files": [
     "dist/*"
