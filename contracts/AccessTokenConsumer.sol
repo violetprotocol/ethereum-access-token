@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import "hardhat/console.sol";
-import "./IAuthVerifier.sol";
+import "./IAccessTokenVerifier.sol";
 
-contract AuthCompatible {
-    IAuthVerifier private _verifier;
+contract AccessTokenConsumer {
+    IAccessTokenVerifier private _verifier;
 
-    constructor(address authVerifier) {
-        _verifier = IAuthVerifier(authVerifier);
+    constructor(address accessTokenVerifier) {
+        _verifier = IAccessTokenVerifier(accessTokenVerifier);
     }
 
     modifier requiresAuth(
@@ -17,7 +17,7 @@ contract AuthCompatible {
         bytes32 s,
         uint256 expiry
     ) {
-        require(verify(v, r, s, expiry), "AuthToken: verification failure");
+        require(verify(v, r, s, expiry), "AccessToken: verification failure");
         _;
     }
 
@@ -27,11 +27,11 @@ contract AuthCompatible {
         bytes32 s,
         uint256 expiry
     ) internal view returns (bool) {
-        AuthToken memory token = constructToken(expiry);
+        AccessToken memory token = constructToken(expiry);
         return _verifier.verify(token, v, r, s);
     }
 
-    function constructToken(uint256 expiry) internal view returns (AuthToken memory token) {
+    function constructToken(uint256 expiry) internal view returns (AccessToken memory token) {
         FunctionCall memory functionCall;
         functionCall.functionSignature = msg.sig;
         functionCall.target = address(this);
@@ -55,9 +55,8 @@ contract AuthCompatible {
             let endOfSigExp := add(startPos, 0x80)
             let totalInputSize := sub(calldatasize(), endOfSigExp)
 
-            // disgusting dirty putrid abomination of a detestable drivelous hack because
-            // for some reason byte array pointers are being assigned the same address as another causing overwrite
-            inputs := add(inputs, mul(calldatasize(), 2))
+            // Overwrite data to calldata pointer
+            inputs := ptr
 
             // Store expected length of total byte array as first value
             mstore(inputs, totalInputSize)

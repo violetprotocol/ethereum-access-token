@@ -1,17 +1,15 @@
-import { BigNumberish } from "ethers";
-
 // The named list of all type definitions
-const AuthMessageTypes = {
+const AccessTokenTypes = {
   FunctionCall: [
     { name: "functionSignature", type: "bytes4" },
     { name: "target", type: "address" },
     { name: "caller", type: "address" },
     { name: "parameters", type: "bytes" },
   ],
-  AuthToken: [
+  AccessToken: [
     { name: "expiry", type: "uint256" },
     { name: "functionCall", type: "FunctionCall" },
   ],
 };
 
-export { AuthMessageTypes };
+export { AccessTokenTypes };

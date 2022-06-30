@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
-import "./IAuthVerifier.sol";
+import "./IAccessTokenVerifier.sol";
 import "./KeyInfrastructure.sol";
 
-contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
+contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     bytes32 private constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -15,7 +15,7 @@ contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
     // solhint-disable max-line-length
     bytes32 private constant TOKEN_TYPEHASH =
         keccak256(
-            "AuthToken(uint256 expiry,FunctionCall functionCall)FunctionCall(bytes4 functionSignature,address target,address caller,bytes parameters)"
+            "AccessToken(uint256 expiry,FunctionCall functionCall)FunctionCall(bytes4 functionSignature,address target,address caller,bytes parameters)"
         );
 
     // solhint-disable var-name-mixedcase
@@ -58,19 +58,19 @@ contract AuthVerifier is IAuthVerifier, KeyInfrastructure {
             );
     }
 
-    function hash(AuthToken memory token) internal pure returns (bytes32) {
+    function hash(AccessToken memory token) internal pure returns (bytes32) {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
     function verify(
-        AuthToken memory token,
+        AccessToken memory token,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public view override returns (bool) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
 
-        require(token.expiry > block.timestamp, "AuthToken: has expired");
+        require(token.expiry > block.timestamp, "AccessToken: has expired");
         return ecrecover(digest, v, r, s) == _issuer;
     }
 }

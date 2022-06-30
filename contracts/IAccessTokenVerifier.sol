@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 struct EIP712Domain {
     string name;
@@ -22,14 +22,14 @@ struct FunctionCall {
     // FunctionParam[] parameters; // array of input parameters to the function call
 }
 
-struct AuthToken {
+struct AccessToken {
     uint256 expiry;
     FunctionCall functionCall;
 }
 
-interface IAuthVerifier {
+interface IAccessTokenVerifier {
     function verify(
-        AuthToken memory token,
+        AccessToken memory token,
         uint8 v,
         bytes32 r,
         bytes32 s
