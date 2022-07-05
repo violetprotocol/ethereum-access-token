@@ -71,6 +71,21 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
 
         require(token.expiry > block.timestamp, "AccessToken: has expired");
-        return ecrecover(digest, v, r, s) == _issuer;
+
+        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
+            revert("AccessToken: invalid signature s");
+        }
+
+        if (v != 27 && v != 28) {
+            revert("AccessToken: invalid signature v");
+        }
+
+        // If the signature is valid (and not malleable), return the signer address
+        address signer = ecrecover(digest, v, r, s);
+        if (signer == address(0)) {
+            revert("AccessToken: invalid signature");
+        }
+
+        return signer == _issuer;
     }
 }

@@ -13,12 +13,50 @@ const { expect } = chai;
 const { BigNumber } = ethers;
 
 const shouldBehaveLikeAccessTokenVerifier = function () {
+  const invalidSignatureV = 26;
+  const invalidSignatureS = "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A1";
+
   describe("sign and verify", async () => {
     it("should succeed", async function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
 
       await expect(this.auth.verify(this.value, signature.v, signature.r, signature.s)).to.not.be.reverted;
       expect(await this.auth.callStatic.verify(this.value, signature.v, signature.r, signature.s)).to.be.true;
+    });
+
+    it("should revert if signature v is invalid", async function () {
+      // The data to sign
+      const value = { ...this.value, expiry: this.value.expiry + 10 };
+
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
+
+      await expect(this.auth.verify(value, invalidSignatureV, signature.r, signature.s)).to.be.revertedWith(
+        "AccessToken: invalid signature v",
+      );
+    });
+
+    it("should revert if signature s is invalid", async function () {
+      // The data to sign
+      const value = { ...this.value, expiry: this.value.expiry + 10 };
+
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
+
+      await expect(this.auth.verify(value, signature.v, signature.r, invalidSignatureS)).to.be.revertedWith(
+        "AccessToken: invalid signature s",
+      );
+    });
+
+    it("should revert with an invalid signature", async function () {
+      const bytes32Zero = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+      // The data to sign
+      const value = { ...this.value, expiry: this.value.expiry + 10 };
+
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
+
+      await expect(this.auth.verify(value, signature.v, bytes32Zero, bytes32Zero)).to.be.revertedWith(
+        "AccessToken: invalid signature",
+      );
     });
 
     it("should fail with expired token", async function () {
