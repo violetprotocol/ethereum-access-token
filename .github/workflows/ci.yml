@@ -58,4 +58,4 @@ jobs:
         run: |
           echo "## Test results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo ${{steps.coverage.outputs.coverage-table}} >> $GITHUB_STEP_SUMMARY
+          echo "`${{steps.coverage.outputs.coverage-table}}`" >> $GITHUB_STEP_SUMMARY
