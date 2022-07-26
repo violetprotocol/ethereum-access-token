@@ -17,6 +17,8 @@ on:
 jobs:
   ci:
     runs-on: "ubuntu-latest"
+    outputs:
+      coverage: ${{ steps.coverage.outputs.coverage-table }}
     steps:
       - name: "Check out the repo"
         uses: "actions/checkout@v3"
@@ -42,9 +44,13 @@ jobs:
         run: "yarn typechain"
 
       - name: "Test the contracts and generate the coverage report"
-        run: "yarn coverage"
+        id: coverage
+        run: |
+          "yarn coverage"
+          "echo '::set-output name=coverage-table::$(echo tail -22)'"
 
       - name: "Add test summary"
         run: |
           echo "## Test results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "${{steps.coverage.outputs.coverage-table}}" >> $GITHUB_STEP_SUMMARY
