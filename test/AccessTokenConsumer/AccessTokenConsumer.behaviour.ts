@@ -1,9 +1,9 @@
 import { ethers, waffle } from "hardhat";
+import chai from "chai";
+import { splitSignature } from "@ethersproject/bytes";
 import { signAccessToken } from "../../src/utils/signAccessToken";
 import { packParameters } from "../../src/utils/packParameters";
-import { splitSignature } from "@ethersproject/bytes";
 
-const chai = require("chai");
 const { solidity } = waffle;
 chai.use(solidity);
 const { expect } = chai;

@@ -1,15 +1,13 @@
 import { artifacts, ethers, waffle } from "hardhat";
+import chai from "chai";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "../types";
 import { shouldBehaveLikeAccessTokenVerifier } from "./AccessTokenVerifier.behaviour";
 import { AccessTokenVerifier } from "../../src/types";
 
-const chai = require("chai");
 const { solidity } = waffle;
 chai.use(solidity);
-const { expect } = chai;
-const { BigNumber } = ethers;
 
 describe("AccessTokenVerifier", function () {
   before(async function () {

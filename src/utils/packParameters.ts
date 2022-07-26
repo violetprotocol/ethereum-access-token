@@ -1,5 +1,5 @@
 import { hexlify } from "@ethersproject/bytes";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 
 const placeholderV = 27;
 const placeholderR = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3";
