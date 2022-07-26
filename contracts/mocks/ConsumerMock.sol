@@ -1,3 +1,4 @@
+/* solhint-disable no-unused-vars */
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
@@ -5,6 +6,7 @@ import "hardhat/console.sol";
 import "../AccessTokenConsumer.sol";
 
 contract ConsumerMock is AccessTokenConsumer {
+    // solhint-disable-next-line no-empty-blocks
     constructor(address verifier) AccessTokenConsumer(verifier) {}
 
     function noParams(

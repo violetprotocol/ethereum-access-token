@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "../AccessTokenConsumer.sol";
 
 contract DummyDapp is AccessTokenConsumer {
+    // solhint-disable-next-line no-empty-blocks
     constructor(address verifier) AccessTokenConsumer(verifier) {}
 
     function lend(
@@ -12,8 +13,8 @@ contract DummyDapp is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        address token,
-        uint256 amount
+        address,
+        uint256
     ) public view requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
