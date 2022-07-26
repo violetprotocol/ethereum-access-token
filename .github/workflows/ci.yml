@@ -46,8 +46,8 @@ jobs:
       - name: "Test the contracts and generate the coverage report"
         id: coverage
         run: |
-          "yarn coverage"
-          "echo '::set-output name=coverage-table::$(echo tail -22)'"
+          yarn coverage
+          echo "::set-output name=coverage-table::$(echo tail -22)"
 
       - name: "Add test summary"
         run: |
