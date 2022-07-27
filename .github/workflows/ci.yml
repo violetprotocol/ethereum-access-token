@@ -1,0 +1,66 @@
+name: "CI"
+
+env:
+  INFURA_API_KEY: ${{ secrets.INFURA_KEY_FOR_CI_CD }}
+  MNEMONIC: ${{ secrets.MNEMONIC_FOR_CI_CD }}
+
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "dev"
+  push:
+    branches:
+      - "main"
+      - "dev"
+
+jobs:
+  ci:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "yarn"
+          node-version: "16"
+
+      - uses: "actions/cache@v2"
+        with:
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          path: "./node_modules"
+
+      - name: "Install the dependencies"
+        run: "yarn install --immutable"
+
+      - name: "Lint the code"
+        run: "yarn lint"
+
+      - name: "Add lint summary"
+        run: |
+          echo "## Lint results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Compile the contracts and generate the TypeChain bindings"
+        run: "yarn typechain"
+
+      - name: "Test the contracts and generate the coverage report"
+        id: coverage
+        run: yarn coverage
+
+      - name: "Add test summary"
+        run: |
+          echo "## Test results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Monitor coverage
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: "coverage/clover.xml"
+          threshold_alert: 50
+          threshold_warning: 90
+          threshold_metric: "lines"
+          comment_mode: insert

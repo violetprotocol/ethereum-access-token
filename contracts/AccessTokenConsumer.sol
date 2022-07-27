@@ -46,6 +46,7 @@ contract AccessTokenConsumer {
     // Removes all references to the proof object except any offsets related to
     // other inputs that are pushed by the proof
     function extractInputs() public pure returns (bytes memory inputs) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             let ptr := mload(0x40)
             calldatacopy(ptr, 0, calldatasize())

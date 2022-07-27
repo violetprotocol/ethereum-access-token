@@ -11,7 +11,7 @@ import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
-import { HDAccountsUserConfig, NetworkUserConfig } from "hardhat/types";
+import { NetworkUserConfig } from "hardhat/types";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 

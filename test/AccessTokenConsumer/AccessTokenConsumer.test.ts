@@ -1,19 +1,15 @@
 import { artifacts, ethers, waffle } from "hardhat";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
+import chai from "chai";
 
 import { DummyDapp } from "../../src/types/DummyDapp";
-import { packParameters } from "../../src/utils/packParameters";
-import { splitSignature } from "@ethersproject/bytes";
 import { shouldBehaveLikeAccessTokenConsumer } from "./AccessTokenConsumer.behaviour";
 import { AccessTokenVerifier, ConsumerMock } from "../../src/types";
 import { Signers } from "../types";
 
-const chai = require("chai");
 const { solidity } = waffle;
 chai.use(solidity);
-const { expect } = chai;
-const { BigNumber } = ethers;
 
 describe("AccessTokenConsumer", function () {
   before("setup accounts", async function () {
