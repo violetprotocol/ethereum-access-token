@@ -17,8 +17,6 @@ on:
 jobs:
   ci:
     runs-on: "ubuntu-latest"
-    outputs:
-      coverage: ${{ steps.coverage.outputs.coverage-table }}
     steps:
       - name: "Check out the repo"
         uses: "actions/checkout@v3"
@@ -50,12 +48,19 @@ jobs:
 
       - name: "Test the contracts and generate the coverage report"
         id: coverage
-        run: |
-          yarn coverage 2>&1 | tee coverage.txt
-          echo ::set-output name=coverage-table::$(tail -22 coverage.txt)
+        run: yarn coverage
 
       - name: "Add test summary"
         run: |
           echo "## Test results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo -e "${{steps.coverage.outputs.coverage-table}}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Monitor coverage
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: "coverage/clover.xml"
+          threshold_alert: 50
+          threshold_warning: 90
+          threshold_metric: "lines"
+          comment_mode: insert
