@@ -4,14 +4,13 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
-import "./tasks/accounts";
-import "./tasks/deploy";
+import "./tasks";
 
 import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
-import { HDAccountsUserConfig, NetworkUserConfig } from "hardhat/types";
+import { NetworkUserConfig } from "hardhat/types";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -29,6 +28,7 @@ if (!infuraApiKey) {
 }
 
 const chainIds = {
+  "arbitrum-goerli": 421613,
   arbitrumOne: 42161,
   avalanche: 43114,
   bsc: 56,
@@ -79,6 +79,7 @@ const config: HardhatUserConfig = {
       chainId: chainIds.hardhat,
     },
     arbitrumOne: getChainConfig("arbitrumOne"),
+    arbitrumGoerli: getChainConfig("arbitrum-goerli"),
     avalanche: getChainConfig("avalanche"),
     bsc: getChainConfig("bsc"),
     mainnet: getChainConfig("mainnet"),
