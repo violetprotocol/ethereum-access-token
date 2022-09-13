@@ -1,3 +1,4 @@
+import { ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { TaskArguments } from "hardhat/types";
 import { AccessTokenVerifier } from "../src/types";
@@ -15,10 +16,23 @@ task("rotate:IntermediateKey")
       await ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract)
     );
 
-    const tx = await accessTokenVerifier.rotateIntermediate(taskArguments.newintermediate);
+    let tx: ContractTransaction | null = null;
+    try {
+      tx = await accessTokenVerifier.rotateIntermediate(taskArguments.newintermediate);
+      const receipt = await tx.wait();
 
-    console.log("Updated intermediate key to: ", newIntermediateKey);
-    console.log("TX hash", tx.hash);
+      if (receipt?.status === 1) {
+        console.log("Updated intermediate key to: ", newIntermediateKey);
+        console.log("TX hash", tx.hash);
+      } else {
+        throw new Error(`Transaction reverted. Tx hash: ${tx?.hash}`);
+      }
+    } catch (error) {
+      if (tx?.hash) {
+        console.error(`Error while rotating the intermediate key. Transaction hash: ${tx.hash}`);
+      }
+      throw error;
+    }
   });
 
 task("rotate:IssuerKey")
@@ -34,8 +48,22 @@ task("rotate:IssuerKey")
       await ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract)
     );
 
-    const tx = await accessTokenVerifier.rotateIssuer(taskArguments.newissuer);
+    let tx: ContractTransaction | null = null;
+    try {
+      tx = await accessTokenVerifier.rotateIssuer(taskArguments.newissuer);
 
-    console.log("Updated issuer key to: ", newIssuerKey);
-    console.log("TX hash", tx.hash);
+      const receipt = await tx.wait();
+
+      if (receipt?.status === 1) {
+        console.log("Updated issuer key to: ", newIssuerKey);
+        console.log("TX hash", tx.hash);
+      } else {
+        throw new Error(`Transaction reverted. Tx hash: ${tx?.hash}`);
+      }
+    } catch (error) {
+      if (tx?.hash) {
+        console.error(`Error while rotating the intermediate key. Transaction hash: ${tx.hash}`);
+      }
+      throw error;
+    }
   });
