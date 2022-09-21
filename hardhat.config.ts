@@ -23,7 +23,7 @@ enum RpcProvider {
   ALCHEMY = "alchemy",
 }
 
-const RPC_PROVIDER: RpcProvider = RpcProvider.INFURA;
+const RPC_PROVIDER: RpcProvider = RpcProvider.ALCHEMY;
 
 if (!privateKey && !mnemonic) {
   throw new Error("Please set your PRIVATE_KEY or MNEMONIC in a .env file");
@@ -52,14 +52,16 @@ const chainIds = {
 
 const getAlchemyUrl = (network: keyof typeof chainIds) => {
   switch (network) {
-    case "arbitrumOne":
-      return process.env.ARBITRUM_ONE_RPC_URL;
-    case "optimism":
-      return process.env.OPTIMISM_MAINNET_RPC_URL;
-    case "mainnet":
-      return process.env.ETHEREUM_MAINNET_RPC_URL;
+    // case "arbitrumOne":
+    //   return process.env.ARBITRUM_ONE_RPC_URL;
+    // case "optimism":
+    //   return process.env.OPTIMISM_MAINNET_RPC_URL;
+    // case "mainnet":
+    //   return process.env.ETHEREUM_MAINNET_RPC_URL;
     case "polygon-mumbai":
       return process.env.POLYGON_MUMBAI_RPC_URL;
+    case "polygon-mainnet":
+      return process.env.POLYGON_MAINNET_RPC_URL;
     default:
       throw new Error(`No Alchemy URL configured for the ${network} network`);
   }
@@ -116,16 +118,16 @@ const config: HardhatUserConfig = {
       },
       chainId: chainIds.hardhat,
     },
-    arbitrumOne: getChainConfig("arbitrumOne"),
-    arbitrumGoerli: getChainConfig("arbitrum-goerli"),
-    avalanche: getChainConfig("avalanche"),
-    bsc: getChainConfig("bsc"),
-    mainnet: getChainConfig("mainnet"),
-    optimism: getChainConfig("optimism"),
+    // arbitrumOne: getChainConfig("arbitrumOne"),
+    // arbitrumGoerli: getChainConfig("arbitrum-goerli"),
+    // avalanche: getChainConfig("avalanche"),
+    // bsc: getChainConfig("bsc"),
+    // mainnet: getChainConfig("mainnet"),
+    // optimism: getChainConfig("optimism"),
     polygon: getChainConfig("polygon-mainnet"),
     polygonMumbai: getChainConfig("polygon-mumbai"),
-    rinkeby: getChainConfig("rinkeby"),
-    kovan: getChainConfig("kovan"),
+    // rinkeby: getChainConfig("rinkeby"),
+    // kovan: getChainConfig("kovan"),
   },
   paths: {
     artifacts: "./artifacts",
