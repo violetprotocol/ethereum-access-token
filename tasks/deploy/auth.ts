@@ -4,7 +4,6 @@ import { LedgerSigner } from "@anders-t/ethers-ledger";
 
 import { AccessTokenVerifier } from "../../src/types/AccessTokenVerifier";
 import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTokenVerifier__factory";
-import { calcGas } from "../utils";
 
 task("deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
@@ -21,26 +20,31 @@ task("deploy:AccessTokenVerifier")
 
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
+    // Change me
+    const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
+
     const ledger = new LedgerSigner(ethers.provider);
 
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
       await ethers.getContractFactory("AccessTokenVerifier")
     );
 
-    // Gas estimation and gas fees settings
-    const estimatedGas = await ethers.provider.estimateGas(
-      accessTokenVerifierFactory.getDeployTransaction(taskArguments.root),
-    );
-    console.log("estimatedGas", estimatedGas);
-    const gasParams = await calcGas(estimatedGas);
-    console.log("gasParams", gasParams);
-
     try {
       console.log("Deploying...");
-      const accessTokenVerifier: AccessTokenVerifier = <AccessTokenVerifier>(
-        await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root, { ...gasParams })
-      );
+
+      let accessTokenVerifier: AccessTokenVerifier;
+      if (network.name === "polygon") {
+        accessTokenVerifier = <AccessTokenVerifier>(
+          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
+        );
+        console.log("accessTokenVerifier", accessTokenVerifier);
+      } else {
+        accessTokenVerifier = <AccessTokenVerifier>(
+          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root)
+        );
+      }
+
       console.log("accessTokenVerifier", accessTokenVerifier);
       await accessTokenVerifier.deployed();
       console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
