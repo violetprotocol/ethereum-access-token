@@ -5,7 +5,8 @@ export function parse(data: any) {
   return ethers.utils.parseUnits(Math.ceil(data) + "", "gwei");
 }
 
-export async function calcGas(gasEstimated: any) {
+// ONLY works for Polygon Mainnet
+export async function calcGasOnPolygonMainnet(gasEstimated: any) {
   const gas = {
     gasLimit: gasEstimated, //.mul(110).div(100)
     maxFeePerGas: ethers.BigNumber.from(40000000000),
