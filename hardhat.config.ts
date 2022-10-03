@@ -52,12 +52,12 @@ const chainIds = {
 
 const getAlchemyUrl = (network: keyof typeof chainIds) => {
   switch (network) {
-    // case "arbitrumOne":
-    //   return process.env.ARBITRUM_ONE_RPC_URL;
-    // case "optimism":
-    //   return process.env.OPTIMISM_MAINNET_RPC_URL;
-    // case "mainnet":
-    //   return process.env.ETHEREUM_MAINNET_RPC_URL;
+    case "arbitrumOne":
+      return process.env.ARBITRUM_ONE_RPC_URL;
+    case "optimism":
+      return process.env.OPTIMISM_MAINNET_RPC_URL;
+    case "mainnet":
+      return process.env.ETHEREUM_MAINNET_RPC_URL;
     case "polygon-mumbai":
       return process.env.POLYGON_MUMBAI_RPC_URL;
     case "polygon-mainnet":
@@ -109,7 +109,11 @@ const config: HardhatUserConfig = {
     src: "./contracts",
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      arbitrumOne: process.env.ARBSCAN_API_KEY,
+      optimisticEthereum: process.env.OPTIMISM_API_KEY,
+    },
   },
   networks: {
     hardhat: {
@@ -118,12 +122,12 @@ const config: HardhatUserConfig = {
       },
       chainId: chainIds.hardhat,
     },
-    // arbitrumOne: getChainConfig("arbitrumOne"),
+    arbitrumOne: getChainConfig("arbitrumOne"),
     // arbitrumGoerli: getChainConfig("arbitrum-goerli"),
     // avalanche: getChainConfig("avalanche"),
     // bsc: getChainConfig("bsc"),
-    // mainnet: getChainConfig("mainnet"),
-    // optimism: getChainConfig("optimism"),
+    mainnet: getChainConfig("mainnet"),
+    optimism: getChainConfig("optimism"),
     polygon: getChainConfig("polygon-mainnet"),
     polygonMumbai: getChainConfig("polygon-mumbai"),
     // rinkeby: getChainConfig("rinkeby"),
