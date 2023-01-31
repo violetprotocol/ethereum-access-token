@@ -28,6 +28,6 @@ task("get:IssuerKey")
     const accessTokenVerifier = <AccessTokenVerifier>(
       await ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract)
     );
-    const issuerKey = await accessTokenVerifier.callStatic.getIssuerKey();
+    const issuerKey = await accessTokenVerifier.callStatic.getIssuerKeys();
     console.log("Issuer key: ", issuerKey);
   });

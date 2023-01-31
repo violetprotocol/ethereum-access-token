@@ -24,7 +24,7 @@ describe("AccessTokenVerifier", function () {
       await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
     );
     await this.auth.rotateIntermediate(this.signers.admin.address);
-    await this.auth.rotateIssuer(this.signers.admin.address);
+    await this.auth.activateIssuers([this.signers.admin.address]);
 
     this.domain = {
       name: "Ethereum Access Token",

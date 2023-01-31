@@ -31,7 +31,7 @@ describe("AccessTokenConsumer", function () {
     );
     this.dapp = <DummyDapp>await waffle.deployContract(this.signers.admin, dappArtifact, [this.auth.address]);
     await this.auth.rotateIntermediate(this.signers.admin.address);
-    await this.auth.rotateIssuer(this.signers.admin.address);
+    await this.auth.activateIssuers([this.signers.admin.address]);
     this.mock = <ConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact, [this.auth.address]);
     this.fakeMock = <ConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact, [this.auth.address]);
   });
