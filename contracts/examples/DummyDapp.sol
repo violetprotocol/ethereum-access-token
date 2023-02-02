@@ -15,7 +15,7 @@ contract DummyDapp is AccessTokenConsumer {
         uint256 expiry,
         address,
         uint256
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 }
