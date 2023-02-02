@@ -6,6 +6,7 @@ import "./IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumer {
     IAccessTokenVerifier private _verifier;
+    mapping(bytes32 => bool) private _accessTokenUsed;
 
     constructor(address accessTokenVerifier) {
         _verifier = IAccessTokenVerifier(accessTokenVerifier);
@@ -19,6 +20,7 @@ contract AccessTokenConsumer {
     ) {
         require(verify(v, r, s, expiry), "AccessToken: verification failure");
         _;
+        consumeAccessToken(v, r, s);
     }
 
     function verify(
@@ -27,6 +29,8 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) internal view returns (bool) {
+        require(!isAccessTokenUsed(v, r, s), "AccessToken: already used");
+
         AccessToken memory token = constructToken(expiry);
         return _verifier.verify(token, v, r, s);
     }
@@ -65,5 +69,24 @@ contract AccessTokenConsumer {
             // Copy bytes from end of signature and expiry section to end of calldata
             calldatacopy(add(inputs, 0x20), endOfSigExp, totalInputSize)
         }
+    }
+
+    function isAccessTokenUsed(
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view returns (bool) {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s));
+        return _accessTokenUsed[accessTokenHash];
+    }
+
+    function consumeAccessToken(
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) private {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s));
+
+        _accessTokenUsed[accessTokenHash] = true;
     }
 }
