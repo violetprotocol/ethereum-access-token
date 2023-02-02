@@ -34,7 +34,7 @@ describe("AccessTokenVerifier", function () {
     };
 
     this.value = {
-      expiry: Math.floor(new Date().getTime() / 1000) + 10,
+      expiry: Math.floor(new Date().getTime() / 1000) + 1000,
       functionCall: {
         functionSignature: "0x0f694584",
         target: this.auth.address,
