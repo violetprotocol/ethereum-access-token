@@ -1,8 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import chai from "chai";
-import { hexValue, splitSignature } from "@ethersproject/bytes";
 import { signAccessToken } from "../../src/utils/signAccessToken";
-import { packParameters } from "../../src/utils/packParameters";
 import { generateEAT } from "../helpers/utils";
 
 const { solidity } = waffle;
