@@ -5,11 +5,11 @@ contract KeyInfrastructure {
     address internal _root;
     address internal _intermediate;
     address[] internal _issuers;
-    mapping(address => bool) internal _isIssuer;
+    mapping(address => bool) internal _isActiveIssuer;
 
     event IntermediateRotated(address newKey);
-    event IssuersActivated(address[] newIssuers);
-    event IssuersDeactivated(address[] oldIssuers);
+    event IssuerActivated(address activatedIssuer);
+    event IssuerDeactivated(address deactivatedIssuer);
 
     modifier onlyRoot() {
         require(msg.sender == _root, "unauthorised: must be root");
@@ -22,7 +22,7 @@ contract KeyInfrastructure {
     }
 
     modifier onlyIssuer() {
-        require(_isIssuer[msg.sender], "not valid signer");
+        require(_isActiveIssuer[msg.sender], "not a valid issuer");
         _;
     }
 
@@ -35,22 +35,24 @@ contract KeyInfrastructure {
         emit IntermediateRotated(newIntermediate);
     }
 
-    function activateIssuers(address[] calldata newKeys) public onlyIntermediate {
-        for (uint256 i = 0; i < newKeys.length; i++) {
-            address newKey = newKeys[i];
-            if (!_isIssuer[newKey]) addToIssuers(newKey);
+    function activateIssuers(address[] calldata newIssuers) public onlyIntermediate {
+        for (uint256 i = 0; i < newIssuers.length; i++) {
+            address newKey = newIssuers[i];
+            if (!_isActiveIssuer[newKey]) {
+                addToIssuers(newKey);
+                emit IssuerActivated(newKey);
+            }
         }
-
-        emit IssuersActivated(newKeys);
     }
 
-    function deactivateIssuers(address[] calldata keys) public onlyIntermediate {
-        for (uint256 i = 0; i < keys.length; i++) {
-            address oldKey = keys[i];
-            if (_isIssuer[oldKey]) removeFromIssuers(oldKey);
+    function deactivateIssuers(address[] calldata issuers) public onlyIntermediate {
+        for (uint256 i = 0; i < issuers.length; i++) {
+            address oldKey = issuers[i];
+            if (_isActiveIssuer[oldKey]) {
+                removeFromIssuers(oldKey);
+                emit IssuerDeactivated(oldKey);
+            }
         }
-
-        emit IssuersDeactivated(keys);
     }
 
     function getRootKey() public view returns (address) {
@@ -61,25 +63,25 @@ contract KeyInfrastructure {
         return _intermediate;
     }
 
-    function getIssuerKeys() public view returns (address[] memory) {
+    function getActiveIssuers() public view returns (address[] memory) {
         return _issuers;
     }
 
-    function checkIsIssuer(address key) public view returns (bool) {
-        return _isIssuer[key];
+    function isActiveIssuer(address addr) public view returns (bool) {
+        return _isActiveIssuer[addr];
     }
 
-    function addToIssuers(address key) internal {
-        _isIssuer[key] = true;
-        _issuers.push(key);
+    function addToIssuers(address addr) internal {
+        _isActiveIssuer[addr] = true;
+        _issuers.push(addr);
     }
 
-    function removeFromIssuers(address key) internal {
-        _isIssuer[key] = false;
+    function removeFromIssuers(address addr) internal {
+        _isActiveIssuer[addr] = false;
 
         for (uint256 i = 0; i < _issuers.length; i++) {
             address issuer = _issuers[i];
-            if (key == issuer) {
+            if (addr == issuer) {
                 _issuers[i] = _issuers[_issuers.length - 1];
                 _issuers.pop();
                 break;

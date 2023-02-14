@@ -86,6 +86,6 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
             revert("AccessToken: invalid signature");
         }
 
-        return _isIssuer[signer];
+        return _isActiveIssuer[signer];
     }
 }

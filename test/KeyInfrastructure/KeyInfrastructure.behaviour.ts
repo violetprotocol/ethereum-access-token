@@ -33,36 +33,36 @@ const shouldBehaveLikeKeyInfrastructure = function () {
         await expect(
           this.keyInfrastructure
             .connect(this.signers.user0)
-            .deactivateIssuers(await this.keyInfrastructure.getIssuerKeys()),
+            .deactivateIssuers(await this.keyInfrastructure.getActiveIssuers()),
         ).to.not.be.reverted;
       });
 
       it("should succeed", async function () {
         await expect(this.keyInfrastructure.connect(this.signers.user0).activateIssuers([this.signers.admin.address]))
-          .to.emit(this.keyInfrastructure, "IssuersActivated")
-          .withArgs([this.signers.admin.address]);
+          .to.emit(this.keyInfrastructure, "IssuerActivated")
+          .withArgs(this.signers.admin.address);
 
-        expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.admin.address)).to.be.true;
-        expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([this.signers.admin.address]);
+        expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.true;
+        expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([this.signers.admin.address]);
       });
 
       it("should not add existing issuer to list again", async function () {
-        await expect(this.keyInfrastructure.connect(this.signers.user0).activateIssuers([this.signers.admin.address]))
-          .to.emit(this.keyInfrastructure, "IssuersActivated")
-          .withArgs([this.signers.admin.address]);
+        await expect(
+          this.keyInfrastructure.connect(this.signers.user0).activateIssuers([this.signers.admin.address]),
+        ).to.not.emit(this.keyInfrastructure, "IssuerActivated");
 
-        expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.admin.address)).to.be.true;
-        expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([this.signers.admin.address]);
+        expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.true;
+        expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([this.signers.admin.address]);
       });
 
       it("from new intermediate key should succeed", async function () {
         await expect(this.keyInfrastructure.rotateIntermediate(this.signers.user1.address)).to.not.be.reverted;
         await expect(this.keyInfrastructure.connect(this.signers.user1).activateIssuers([this.signers.user0.address]))
-          .to.emit(this.keyInfrastructure, "IssuersActivated")
-          .withArgs([this.signers.user0.address]);
+          .to.emit(this.keyInfrastructure, "IssuerActivated")
+          .withArgs(this.signers.user0.address);
 
-        expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.user0.address)).to.be.true;
-        expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([
+        expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.user0.address)).to.be.true;
+        expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([
           this.signers.admin.address,
           this.signers.user0.address,
         ]);
@@ -73,8 +73,8 @@ const shouldBehaveLikeKeyInfrastructure = function () {
           this.keyInfrastructure.connect(this.signers.user0).activateIssuers([this.signers.user0.address]),
         ).to.be.revertedWith("unauthorised: must be intermediate");
 
-        expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.user0.address)).to.be.true;
-        expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([
+        expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.user0.address)).to.be.true;
+        expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([
           this.signers.admin.address,
           this.signers.user0.address,
         ]);
@@ -93,11 +93,11 @@ const shouldBehaveLikeKeyInfrastructure = function () {
           await expect(
             this.keyInfrastructure.connect(this.signers.user0).deactivateIssuers([this.signers.admin.address]),
           )
-            .to.emit(this.keyInfrastructure, "IssuersDeactivated")
-            .withArgs([this.signers.admin.address]);
+            .to.emit(this.keyInfrastructure, "IssuerDeactivated")
+            .withArgs(this.signers.admin.address);
 
-          expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.admin.address)).to.be.false;
-          expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([]);
+          expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.false;
+          expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([]);
         });
 
         it("from new intermediate key should succeed", async function () {
@@ -105,11 +105,11 @@ const shouldBehaveLikeKeyInfrastructure = function () {
           await expect(
             this.keyInfrastructure.connect(this.signers.user1).deactivateIssuers([this.signers.admin.address]),
           )
-            .to.emit(this.keyInfrastructure, "IssuersDeactivated")
-            .withArgs([this.signers.admin.address]);
+            .to.emit(this.keyInfrastructure, "IssuerDeactivated")
+            .withArgs(this.signers.admin.address);
 
-          expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.admin.address)).to.be.false;
-          expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([]);
+          expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.false;
+          expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([]);
 
           await expect(this.keyInfrastructure.rotateIntermediate(this.signers.user0.address)).to.not.be.reverted;
         });
@@ -119,8 +119,10 @@ const shouldBehaveLikeKeyInfrastructure = function () {
             this.keyInfrastructure.connect(this.signers.user1).deactivateIssuers([this.signers.user0.address]),
           ).to.be.revertedWith("unauthorised: must be intermediate");
 
-          expect(await this.keyInfrastructure.callStatic.checkIsIssuer(this.signers.admin.address)).to.be.true;
-          expect(await this.keyInfrastructure.callStatic.getIssuerKeys()).to.deep.equal([this.signers.admin.address]);
+          expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.true;
+          expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([
+            this.signers.admin.address,
+          ]);
         });
       });
     });
