@@ -39,7 +39,7 @@ contract KeyInfrastructure {
         for (uint256 i = 0; i < newIssuers.length; i++) {
             address newKey = newIssuers[i];
             if (!_isActiveIssuer[newKey]) {
-                _addToIssuers(newKey);
+                _addToActiveIssuers(newKey);
                 emit IssuerActivated(newKey);
             }
         }
@@ -49,7 +49,7 @@ contract KeyInfrastructure {
         for (uint256 i = 0; i < issuers.length; i++) {
             address oldKey = issuers[i];
             if (_isActiveIssuer[oldKey]) {
-                _removeFromIssuers(oldKey);
+                _removeFromActiveIssuers(oldKey);
                 emit IssuerDeactivated(oldKey);
             }
         }
