@@ -16,7 +16,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
         describe("address", async function () {
           beforeEach("construct token", async function () {
             this.params = [this.signers.user0.address];
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -27,7 +27,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -37,7 +37,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -47,12 +47,12 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             await expect(
               this.mock
                 .connect(this.signers.user1)
-                .singleAddress(this.signature.v, this.signature.r, this.signature.s, this.value.expiry, this.params[0]),
+                .singleAddress(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -64,7 +64,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleAddress(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -74,7 +74,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -84,7 +84,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -96,7 +96,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(5000),
+                this.token.expiry.add(5000),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -108,33 +108,33 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.signers.user1.address,
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleAddress(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleAddress(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -144,7 +144,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -154,7 +154,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
         describe("uint256", async function () {
           beforeEach("construct token", async function () {
             this.params = [BigNumber.from(42)];
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -165,7 +165,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -175,7 +175,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -185,12 +185,12 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             await expect(
               this.mock
                 .connect(this.signers.user1)
-                .singleUint256(this.signature.v, this.signature.r, this.signature.s, this.value.expiry, this.params[0]),
+                .singleUint256(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -202,7 +202,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleUint256(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -212,7 +212,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -222,7 +222,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -234,7 +234,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -242,31 +242,31 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
 
           it("with incorrect values should revert", async function () {
             await expect(
-              this.mock.singleUint256(this.signature.v, this.signature.r, this.signature.s, this.value.expiry, 41),
+              this.mock.singleUint256(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, 41),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleUint256(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleUint256(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -276,7 +276,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -287,7 +287,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["random string"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -298,7 +298,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -308,7 +308,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -322,14 +322,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                 ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -341,7 +341,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -351,7 +351,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -361,7 +361,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -373,7 +373,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -385,33 +385,33 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -421,7 +421,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -432,7 +432,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["random string"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -443,7 +443,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -453,7 +453,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -467,14 +467,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                 ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -486,7 +486,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, value.expiry.sub(50), this.params[0]),
+              this.mock.singleStringMemory(signature.v, signature.r, signature.s, token.expiry.sub(50), this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -496,7 +496,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -506,7 +506,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -518,7 +518,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -530,33 +530,33 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -566,7 +566,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -577,7 +577,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["0x42"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -588,7 +588,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -598,7 +598,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -608,12 +608,12 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             await expect(
               this.mock
                 .connect(this.signers.user1)
-                .singleByte(this.signature.v, this.signature.r, this.signature.s, this.value.expiry, this.params[0]),
+                .singleByte(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -625,7 +625,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleByte(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -635,7 +635,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -645,7 +645,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -657,7 +657,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -665,31 +665,31 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
 
           it("with incorrect values should revert", async function () {
             await expect(
-              this.mock.singleByte(this.signature.v, this.signature.r, this.signature.s, this.value.expiry, "0x41"),
+              this.mock.singleByte(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, "0x41"),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleByte(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleByte(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -699,7 +699,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -710,7 +710,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["0xaaaaaaaaaaaaaaaa"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -721,7 +721,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -731,7 +731,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -745,14 +745,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                 ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -764,7 +764,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -774,7 +774,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -784,7 +784,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -796,7 +796,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -808,33 +808,33 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "0xbbbbbb",
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -844,7 +844,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -855,7 +855,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["0xaaaaaaaaaaaaaaaa"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -866,7 +866,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -876,7 +876,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.true;
@@ -890,14 +890,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                 ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -909,7 +909,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             );
 
             await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, value.expiry, this.params[0]),
+              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: has expired");
           });
 
@@ -919,7 +919,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.not.be.reverted;
@@ -929,7 +929,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: already used");
@@ -941,7 +941,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -953,33 +953,33 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "0xbbbbbb",
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
             );
 
             await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.value.expiry, this.params[0]),
+              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
             ).to.be.revertedWith("AccessToken: verification failure");
           });
 
@@ -989,7 +989,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
               ),
             ).to.be.revertedWith("AccessToken: verification failure");
@@ -1000,7 +1000,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = [this.signers.user0.address, 42];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1011,7 +1011,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1021,7 +1021,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1036,7 +1036,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                 ),
@@ -1044,7 +1044,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1060,7 +1060,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1073,7 +1073,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1084,7 +1084,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1097,7 +1097,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
               ),
@@ -1110,7 +1110,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 41,
               ),
@@ -1118,14 +1118,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.doubleAddressUint(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1135,9 +1135,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -1148,7 +1148,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1161,7 +1161,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1173,7 +1173,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = [42, "some string"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1184,7 +1184,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1194,7 +1194,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1209,7 +1209,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                 ),
@@ -1217,7 +1217,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1233,7 +1233,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1246,7 +1246,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1257,7 +1257,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1270,7 +1270,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
               ),
@@ -1283,7 +1283,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 "wrong string",
               ),
@@ -1291,14 +1291,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.doubleUint256String(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1308,9 +1308,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -1321,7 +1321,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1334,7 +1334,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1346,7 +1346,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["some string", "0xaaaaaaaaaaaaaa"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1357,7 +1357,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1367,7 +1367,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1382,7 +1382,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                 ),
@@ -1390,7 +1390,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1406,7 +1406,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1419,7 +1419,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1430,7 +1430,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1443,7 +1443,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
               ),
@@ -1456,7 +1456,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
                 this.params[1],
               ),
@@ -1464,14 +1464,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.doubleStringBytesCalldata(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1481,9 +1481,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -1494,7 +1494,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1507,7 +1507,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1519,7 +1519,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["some string", "0xaaaaaaaaaaaaaa"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1530,7 +1530,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1540,7 +1540,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1555,7 +1555,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                 ),
@@ -1563,7 +1563,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1579,7 +1579,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1592,7 +1592,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1603,7 +1603,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1616,7 +1616,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
               ),
@@ -1629,7 +1629,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
                 this.params[1],
               ),
@@ -1637,14 +1637,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.doubleStringBytesMemory(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1654,9 +1654,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -1667,7 +1667,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1680,7 +1680,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
               ),
@@ -1692,7 +1692,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1703,7 +1703,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1713,7 +1713,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1729,7 +1729,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                   this.params[2],
@@ -1738,7 +1738,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1754,7 +1754,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1768,7 +1768,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1780,7 +1780,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1794,7 +1794,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1808,7 +1808,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
                 this.params[1],
                 this.params[2],
@@ -1817,14 +1817,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.multipleStringBytesAddress(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1835,9 +1835,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -1848,7 +1848,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1862,7 +1862,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1875,7 +1875,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1886,7 +1886,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -1896,7 +1896,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1913,7 +1913,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                   this.params[2],
@@ -1923,7 +1923,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -1939,7 +1939,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1954,7 +1954,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1967,7 +1967,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1982,7 +1982,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -1997,7 +1997,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
                 this.params[1],
                 this.params[2],
@@ -2007,14 +2007,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.multipleStringBytesAddressUint256(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2026,9 +2026,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -2039,7 +2039,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2054,7 +2054,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2068,7 +2068,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           beforeEach("construct token", async function () {
             this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42, "0xbbbbbbbbbbbb"];
 
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -2079,7 +2079,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               BigNumber.from(Math.floor(new Date().getTime())),
             );
 
-            this.value = value;
+            this.token = token;
             this.signature = signature;
           });
 
@@ -2089,7 +2089,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2107,7 +2107,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                   this.signature.v,
                   this.signature.r,
                   this.signature.s,
-                  this.value.expiry,
+                  this.token.expiry,
                   this.params[0],
                   this.params[1],
                   this.params[2],
@@ -2118,7 +2118,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with expired token should revert", async function () {
-            const { value, signature } = await generateEAT(
+            const { token, signature } = await generateEAT(
               this.signers.admin,
               this.domain,
               this.mock.interface,
@@ -2134,7 +2134,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                value.expiry,
+                token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2150,7 +2150,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2164,7 +2164,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2180,7 +2180,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry.add(50),
+                this.token.expiry.add(50),
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2196,7 +2196,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 "bad string",
                 this.params[1],
                 this.params[2],
@@ -2207,14 +2207,14 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           });
 
           it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
             await expect(
               this.mock.multipleStringBytesAddressUint256Bytes(
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2227,9 +2227,9 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           it("with incorrect function signature should revert", async function () {
             const signature = splitSignature(
               await signAccessToken(this.signers.admin, this.domain, {
-                ...this.value,
+                ...this.token,
                 functionCall: {
-                  ...this.value.functionCall,
+                  ...this.token.functionCall,
                   functionSignature: "0xdeadbeef",
                 },
               }),
@@ -2240,7 +2240,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 signature.v,
                 signature.r,
                 signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2256,7 +2256,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
                 this.signature.v,
                 this.signature.r,
                 this.signature.s,
-                this.value.expiry,
+                this.token.expiry,
                 this.params[0],
                 this.params[1],
                 this.params[2],
@@ -2270,7 +2270,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
 
       context("without parameters", async function () {
         beforeEach("construct token", async function () {
-          const { value, signature } = await generateEAT(
+          const { token, signature } = await generateEAT(
             this.signers.admin,
             this.domain,
             this.mock.interface,
@@ -2280,7 +2280,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
             [],
             BigNumber.from(Math.floor(new Date().getTime())),
           );
-          this.value = value;
+          this.token = token;
           this.signature = signature;
         });
 
@@ -2290,7 +2290,7 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
               this.signature.v,
               this.signature.r,
               this.signature.s,
-              this.value.expiry,
+              this.token.expiry,
             ),
           ).to.be.true;
         });
@@ -2299,12 +2299,12 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           await expect(
             this.mock
               .connect(this.signers.user1)
-              .noParams(this.signature.v, this.signature.r, this.signature.s, this.value.expiry),
+              .noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
           ).to.be.revertedWith("AccessToken: verification failure");
         });
 
         it("with expired token should revert", async function () {
-          const { value, signature } = await generateEAT(
+          const { token, signature } = await generateEAT(
             this.signers.admin,
             this.domain,
             this.mock.interface,
@@ -2316,37 +2316,37 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
           );
 
           await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, signature.s, value.expiry.sub(50)),
+            this.mock.noParams(this.signature.v, this.signature.r, signature.s, token.expiry.sub(50)),
           ).to.be.revertedWith("AccessToken: has expired");
         });
 
         it("with incorrect expiry should revert", async function () {
           await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.value.expiry.add(50)),
+            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry.add(50)),
           ).to.be.revertedWith("AccessToken: verification failure");
         });
 
         it("with used EAT should revert", async function () {
           await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.value.expiry),
+            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
           ).to.not.be.reverted;
 
           await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.value.expiry),
+            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
           ).to.be.revertedWith("AccessToken: already used");
         });
 
         it("with incorrect signer should revert", async function () {
-          const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.value));
+          const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
-          await expect(this.mock.noParams(signature.v, signature.r, signature.s, this.value.expiry)).to.be.revertedWith(
+          await expect(this.mock.noParams(signature.v, signature.r, signature.s, this.token.expiry)).to.be.revertedWith(
             "AccessToken: verification failure",
           );
         });
 
         it("with incorrect target contract should revert", async function () {
           await expect(
-            this.fakeMock.noParams(this.signature.v, this.signature.r, this.signature.s, this.value.expiry),
+            this.fakeMock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
           ).to.be.revertedWith("AccessToken: verification failure");
         });
       });

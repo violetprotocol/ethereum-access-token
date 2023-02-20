@@ -1,7 +1,22 @@
-import { splitSignature } from "@ethersproject/bytes";
+import { Signature, splitSignature } from "@ethersproject/bytes";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, ethers } from "ethers";
 import { packParameters, signAccessToken } from "../../src/utils";
+
+export interface RawEthereumAccessToken {
+  expiry: BigNumber;
+  functionCall: {
+    functionSignature: string;
+    target: string;
+    caller: string;
+    parameters: string;
+  };
+}
+
+export interface SignedEthereumAccessToken {
+  signature: Signature;
+  token: RawEthereumAccessToken;
+}
 
 export const generateEAT = async (
   signer: SignerWithAddress,
@@ -12,8 +27,8 @@ export const generateEAT = async (
   caller: string,
   parameters: any[],
   expiry: BigNumber,
-) => {
-  const value = {
+): Promise<SignedEthereumAccessToken> => {
+  const token = {
     expiry,
     functionCall: {
       functionSignature: contractInterface.getSighash(functionName),
@@ -22,10 +37,10 @@ export const generateEAT = async (
       parameters: packParameters(contractInterface, functionName, parameters),
     },
   };
-  const signature = splitSignature(await signAccessToken(signer, domain, value));
+  const signature = splitSignature(await signAccessToken(signer, domain, token));
 
   return {
-    value,
+    token,
     signature,
   };
 };

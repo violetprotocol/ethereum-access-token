@@ -33,7 +33,7 @@ describe("AccessTokenVerifier", function () {
       verifyingContract: this.auth.address,
     };
 
-    this.value = {
+    this.token = {
       expiry: Math.floor(new Date().getTime() / 1000) + 1000,
       functionCall: {
         functionSignature: "0x0f694584",
