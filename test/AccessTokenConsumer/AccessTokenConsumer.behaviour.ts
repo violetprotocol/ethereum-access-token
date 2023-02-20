@@ -3,6 +3,9 @@ import chai from "chai";
 import { signAccessToken } from "../../src/utils/signAccessToken";
 import { generateEAT } from "../helpers/utils";
 import { splitSignature } from "@ethersproject/bytes";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Domain } from "../../src/messages";
+import { Contract } from "ethers";
 
 const { solidity } = waffle;
 chai.use(solidity);
@@ -14,2342 +17,379 @@ const shouldBehaveLikeAccessTokenConsumer = function () {
     context("when calling function", async function () {
       context("with parameters", async function () {
         describe("address", async function () {
-          beforeEach("construct token", async function () {
-            this.params = [this.signers.user0.address];
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "address",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleAddress",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              [this.signers.user0.address],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleAddress(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleAddress",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(5000),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.signers.user1.address,
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleAddress(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("uint256", async function () {
-          beforeEach("construct token", async function () {
-            this.params = [BigNumber.from(42)];
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "uint256",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleUint256",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              [BigNumber.from(42)],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleUint256(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleUint256",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleUint256(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, 41),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleUint256(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string calldata", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["random string"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string calldata",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleStringCalldata",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["random string"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleStringCalldata(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleStringCalldata",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleStringCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleStringCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string memory", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["random string"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string memory",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleStringMemory",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["random string"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleStringMemory(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleStringMemory",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, token.expiry.sub(50), this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleStringMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleStringMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("byte", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["0x42"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "byte",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleByte",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["0x42"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleByte(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleByte(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleByte",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleByte(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleByte(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleByte(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleByte(this.signature.v, this.signature.r, this.signature.s, this.token.expiry, "0x41"),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleByte(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleByte(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("bytes calldata", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["0xaaaaaaaaaaaaaaaa"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "bytes calldata",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleBytesCalldata",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["0xaaaaaaaaaaaaaaaa"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleBytesCalldata(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleBytesCalldata",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "0xbbbbbb",
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleBytesCalldata(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("bytes memory", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["0xaaaaaaaaaaaaaaaa"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "bytes memory",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "singleBytesMemory",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["0xaaaaaaaaaaaaaaaa"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .singleBytesMemory(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "singleBytesMemory",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "0xbbbbbb",
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.singleBytesMemory(signature.v, signature.r, signature.s, this.token.expiry, this.params[0]),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.singleBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("address, uint256", async function () {
-          beforeEach("construct token", async function () {
-            this.params = [this.signers.user0.address, 42];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "address, uint256",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "doubleAddressUint",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              [this.signers.user0.address, 42],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .doubleAddressUint(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "doubleAddressUint",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.doubleAddressUint(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                41,
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.doubleAddressUint(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.doubleAddressUint(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.doubleAddressUint(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("uint256, string", async function () {
-          beforeEach("construct token", async function () {
-            this.params = [42, "some string"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "uint256, string",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "doubleUint256String",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              [42, "some string"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .doubleUint256String(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "doubleUint256String",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.doubleUint256String(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                "wrong string",
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.doubleUint256String(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.doubleUint256String(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.doubleUint256String(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string, bytes calldata", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["some string", "0xaaaaaaaaaaaaaa"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string, bytes calldata",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "doubleStringBytesCalldata",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["some string", "0xaaaaaaaaaaaaaa"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .doubleStringBytesCalldata(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "doubleStringBytesCalldata",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.doubleStringBytesCalldata(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.doubleStringBytesCalldata(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string, bytes memory", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["some string", "0xaaaaaaaaaaaaaa"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string, bytes memory",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "doubleStringBytesMemory",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["some string", "0xaaaaaaaaaaaaaa"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .doubleStringBytesMemory(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "doubleStringBytesMemory",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.doubleStringBytesMemory(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.doubleStringBytesMemory(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string, bytes calldata, address", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string, bytes calldata, address",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "multipleStringBytesAddress",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .multipleStringBytesAddress(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                  this.params[2],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "multipleStringBytesAddress",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddress(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.multipleStringBytesAddress(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string, bytes calldata, address, uint256", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string, bytes calldata, address, uint256",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "multipleStringBytesAddressUint256",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .multipleStringBytesAddressUint256(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                  this.params[2],
-                  this.params[3],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "multipleStringBytesAddressUint256",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.multipleStringBytesAddressUint256(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
 
         describe("string, bytes calldata, address, uint256, bytes calldata", async function () {
-          beforeEach("construct token", async function () {
-            this.params = ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42, "0xbbbbbbbbbbbb"];
-
-            const { token, signature } = await generateEAT(
+          it("full test suite", async function () {
+            await performTestSuiteForFunction(
+              "string, bytes calldata, address, uint256, bytes calldata",
               this.signers.admin,
               this.domain,
-              this.mock.interface,
+              this.mock,
+              this.fakeMock,
               "multipleStringBytesAddressUint256Bytes",
               this.mock.address,
               this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())),
+              ["some string", "0xaaaaaaaaaaaaaa", this.signers.user0.address, 42, "0xbbbbbbbbbbbb"],
+              [this.signers.user1],
             );
-
-            this.token = token;
-            this.signature = signature;
-          });
-
-          it("with correct values should succeed", async function () {
-            expect(
-              await this.mock.callStatic.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.true;
-          });
-
-          it("with incorrect caller should revert", async function () {
-            await expect(
-              this.mock
-                .connect(this.signers.user1)
-                .multipleStringBytesAddressUint256Bytes(
-                  this.signature.v,
-                  this.signature.r,
-                  this.signature.s,
-                  this.token.expiry,
-                  this.params[0],
-                  this.params[1],
-                  this.params[2],
-                  this.params[3],
-                  this.params[4],
-                ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with expired token should revert", async function () {
-            const { token, signature } = await generateEAT(
-              this.signers.admin,
-              this.domain,
-              this.mock.interface,
-              "multipleStringBytesAddressUint256Bytes",
-              this.mock.address,
-              this.signers.admin.address,
-              this.params,
-              BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                signature.v,
-                signature.r,
-                signature.s,
-                token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: has expired");
-          });
-
-          it("with already used token should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.not.be.reverted;
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: already used");
-          });
-
-          it("with incorrect expiry should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry.add(50),
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect values should revert", async function () {
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                "bad string",
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect signer should revert", async function () {
-            const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect function signature should revert", async function () {
-            const signature = splitSignature(
-              await signAccessToken(this.signers.admin, this.domain, {
-                ...this.token,
-                functionCall: {
-                  ...this.token.functionCall,
-                  functionSignature: "0xdeadbeef",
-                },
-              }),
-            );
-
-            await expect(
-              this.mock.multipleStringBytesAddressUint256Bytes(
-                signature.v,
-                signature.r,
-                signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
-          });
-
-          it("with incorrect target contract should revert", async function () {
-            await expect(
-              this.fakeMock.multipleStringBytesAddressUint256Bytes(
-                this.signature.v,
-                this.signature.r,
-                this.signature.s,
-                this.token.expiry,
-                this.params[0],
-                this.params[1],
-                this.params[2],
-                this.params[3],
-                this.params[4],
-              ),
-            ).to.be.revertedWith("AccessToken: verification failure");
           });
         });
       });
 
       context("without parameters", async function () {
-        beforeEach("construct token", async function () {
-          const { token, signature } = await generateEAT(
+        it("full test suite", async function () {
+          await performTestSuiteForFunction(
+            "without parameters",
             this.signers.admin,
             this.domain,
-            this.mock.interface,
+            this.mock,
+            this.fakeMock,
             "noParams",
             this.mock.address,
             this.signers.admin.address,
             [],
-            BigNumber.from(Math.floor(new Date().getTime())),
+            [this.signers.user1],
           );
-          this.token = token;
-          this.signature = signature;
-        });
-
-        it("with correct values should succeed", async function () {
-          expect(
-            await this.mock.callStatic.noParams(
-              this.signature.v,
-              this.signature.r,
-              this.signature.s,
-              this.token.expiry,
-            ),
-          ).to.be.true;
-        });
-
-        it("with incorrect caller should revert", async function () {
-          await expect(
-            this.mock
-              .connect(this.signers.user1)
-              .noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
-          ).to.be.revertedWith("AccessToken: verification failure");
-        });
-
-        it("with expired token should revert", async function () {
-          const { token, signature } = await generateEAT(
-            this.signers.admin,
-            this.domain,
-            this.mock.interface,
-            "noParams",
-            this.mock.address,
-            this.signers.admin.address,
-            [],
-            BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
-          );
-
-          await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, signature.s, token.expiry.sub(50)),
-          ).to.be.revertedWith("AccessToken: has expired");
-        });
-
-        it("with incorrect expiry should revert", async function () {
-          await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry.add(50)),
-          ).to.be.revertedWith("AccessToken: verification failure");
-        });
-
-        it("with used EAT should revert", async function () {
-          await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
-          ).to.not.be.reverted;
-
-          await expect(
-            this.mock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
-          ).to.be.revertedWith("AccessToken: already used");
-        });
-
-        it("with incorrect signer should revert", async function () {
-          const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
-
-          await expect(this.mock.noParams(signature.v, signature.r, signature.s, this.token.expiry)).to.be.revertedWith(
-            "AccessToken: verification failure",
-          );
-        });
-
-        it("with incorrect target contract should revert", async function () {
-          await expect(
-            this.fakeMock.noParams(this.signature.v, this.signature.r, this.signature.s, this.token.expiry),
-          ).to.be.revertedWith("AccessToken: verification failure");
         });
       });
+    });
+  });
+};
+
+const performTestSuiteForFunction = async (
+  testName: string,
+  EATSigner: SignerWithAddress,
+  eip712Domain: Domain,
+  contract: Contract,
+  fakeMock: Contract,
+  functionName: string,
+  targetAddress: string,
+  callerAddress: string,
+  parameters: any[],
+  extraAccounts: SignerWithAddress[],
+) => {
+  describe(testName, async function () {
+    beforeEach("construct token", async function () {
+      const { token, signature } = await generateEAT(
+        EATSigner,
+        eip712Domain,
+        contract.interface,
+        functionName,
+        targetAddress,
+        callerAddress,
+        parameters,
+        BigNumber.from(Math.floor(new Date().getTime())),
+      );
+      this.token = token;
+      this.signature = signature;
+    });
+
+    it("with correct values should succeed", async function () {
+      expect(
+        await contract.callStatic[functionName](
+          this.signature.v,
+          this.signature.r,
+          this.signature.s,
+          this.token.expiry,
+          ...parameters,
+        ),
+      ).to.be.true;
+    });
+
+    it("with incorrect caller should revert", async function () {
+      await expect(
+        contract
+          .connect(extraAccounts[0])
+          [functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
+      ).to.be.revertedWith("AccessToken: verification failure");
+    });
+
+    it("with expired token should revert", async function () {
+      const { token, signature } = await generateEAT(
+        EATSigner,
+        eip712Domain,
+        contract.interface,
+        functionName,
+        targetAddress,
+        callerAddress,
+        parameters,
+        BigNumber.from(Math.floor(new Date().getTime())).div(1000).sub(1000),
+      );
+
+      await expect(
+        contract[functionName](this.signature.v, this.signature.r, signature.s, token.expiry.sub(50), ...parameters),
+      ).to.be.revertedWith("AccessToken: has expired");
+    });
+
+    it("with incorrect expiry should revert", async function () {
+      await expect(
+        contract[functionName](
+          this.signature.v,
+          this.signature.r,
+          this.signature.s,
+          this.token.expiry.add(50),
+          ...parameters,
+        ),
+      ).to.be.revertedWith("AccessToken: verification failure");
+    });
+
+    it("with used EAT should revert", async function () {
+      await expect(
+        contract[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
+      ).to.not.be.reverted;
+
+      await expect(
+        contract[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
+      ).to.be.revertedWith("AccessToken: already used");
+    });
+
+    it("with incorrect signer should revert", async function () {
+      const signature = splitSignature(await signAccessToken(extraAccounts[0], this.domain, this.token));
+
+      await expect(
+        contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
+      ).to.be.revertedWith("AccessToken: verification failure");
+    });
+
+    it("with incorrect function signature should revert", async function () {
+      const signature = splitSignature(
+        await signAccessToken(EATSigner, this.domain, {
+          ...this.token,
+          functionCall: {
+            ...this.token.functionCall,
+            functionSignature: "0xdeadbeef",
+          },
+        }),
+      );
+
+      await expect(
+        contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
+      ).to.be.revertedWith("AccessToken: verification failure");
+    });
+
+    it("with incorrect target contract should revert", async function () {
+      await expect(
+        fakeMock[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
+      ).to.be.revertedWith("AccessToken: verification failure");
     });
   });
 };
