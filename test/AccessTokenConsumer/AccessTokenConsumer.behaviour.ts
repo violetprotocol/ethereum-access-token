@@ -2,6 +2,7 @@ import { ethers, waffle } from "hardhat";
 import chai from "chai";
 import { signAccessToken } from "../../src/utils/signAccessToken";
 import { generateEAT } from "../helpers/utils";
+import { splitSignature } from "@ethersproject/bytes";
 
 const { solidity } = waffle;
 chai.use(solidity);
