@@ -71,12 +71,12 @@ contract KeyInfrastructure {
         return _isActiveIssuer[addr];
     }
 
-    function _addToIssuers(address addr) internal {
+    function _addToActiveIssuers(address addr) internal {
         _isActiveIssuer[addr] = true;
         _activeIssuers.push(addr);
     }
 
-    function _removeFromIssuers(address addr) internal {
+    function _removeFromActiveIssuers(address addr) internal {
         _isActiveIssuer[addr] = false;
 
         for (uint256 i = 0; i < _activeIssuers.length; i++) {
