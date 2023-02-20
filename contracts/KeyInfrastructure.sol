@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 contract KeyInfrastructure {
     address internal _root;
     address internal _intermediate;
-    address[] internal _issuers;
+    address[] internal _activeIssuers;
     mapping(address => bool) internal _isActiveIssuer;
 
     event IntermediateRotated(address newKey);
@@ -21,8 +21,8 @@ contract KeyInfrastructure {
         _;
     }
 
-    modifier onlyIssuer() {
-        require(_isActiveIssuer[msg.sender], "not a valid issuer");
+    modifier onlyActiveIssuer() {
+        require(_isActiveIssuer[msg.sender], "unauthorised: must be active issuer");
         _;
     }
 
@@ -39,7 +39,7 @@ contract KeyInfrastructure {
         for (uint256 i = 0; i < newIssuers.length; i++) {
             address newKey = newIssuers[i];
             if (!_isActiveIssuer[newKey]) {
-                addToIssuers(newKey);
+                _addToIssuers(newKey);
                 emit IssuerActivated(newKey);
             }
         }
@@ -49,7 +49,7 @@ contract KeyInfrastructure {
         for (uint256 i = 0; i < issuers.length; i++) {
             address oldKey = issuers[i];
             if (_isActiveIssuer[oldKey]) {
-                removeFromIssuers(oldKey);
+                _removeFromIssuers(oldKey);
                 emit IssuerDeactivated(oldKey);
             }
         }
@@ -64,26 +64,26 @@ contract KeyInfrastructure {
     }
 
     function getActiveIssuers() public view returns (address[] memory) {
-        return _issuers;
+        return _activeIssuers;
     }
 
     function isActiveIssuer(address addr) public view returns (bool) {
         return _isActiveIssuer[addr];
     }
 
-    function addToIssuers(address addr) internal {
+    function _addToIssuers(address addr) internal {
         _isActiveIssuer[addr] = true;
-        _issuers.push(addr);
+        _activeIssuers.push(addr);
     }
 
-    function removeFromIssuers(address addr) internal {
+    function _removeFromIssuers(address addr) internal {
         _isActiveIssuer[addr] = false;
 
-        for (uint256 i = 0; i < _issuers.length; i++) {
-            address issuer = _issuers[i];
+        for (uint256 i = 0; i < _activeIssuers.length; i++) {
+            address issuer = _activeIssuers[i];
             if (addr == issuer) {
-                _issuers[i] = _issuers[_issuers.length - 1];
-                _issuers.pop();
+                _activeIssuers[i] = _activeIssuers[_activeIssuers.length - 1];
+                _activeIssuers.pop();
                 break;
             }
         }
