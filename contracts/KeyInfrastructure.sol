@@ -4,10 +4,12 @@ pragma solidity >=0.8.13;
 contract KeyInfrastructure {
     address internal _root;
     address internal _intermediate;
-    address payable internal _issuer;
+    address[] internal _activeIssuers;
+    mapping(address => bool) internal _isActiveIssuer;
 
     event IntermediateRotated(address newKey);
-    event IssuerRotated(address newKey);
+    event IssuerActivated(address activatedIssuer);
+    event IssuerDeactivated(address deactivatedIssuer);
 
     modifier onlyRoot() {
         require(msg.sender == _root, "unauthorised: must be root");
@@ -19,8 +21,8 @@ contract KeyInfrastructure {
         _;
     }
 
-    modifier onlyIssuer() {
-        require(msg.sender == _issuer, "not valid signer");
+    modifier onlyActiveIssuer() {
+        require(_isActiveIssuer[msg.sender], "unauthorised: must be active issuer");
         _;
     }
 
@@ -33,9 +35,24 @@ contract KeyInfrastructure {
         emit IntermediateRotated(newIntermediate);
     }
 
-    function rotateIssuer(address newIssuer) public onlyIntermediate {
-        _issuer = payable(newIssuer);
-        emit IssuerRotated(newIssuer);
+    function activateIssuers(address[] calldata newIssuers) public onlyIntermediate {
+        for (uint256 i = 0; i < newIssuers.length; i++) {
+            address newKey = newIssuers[i];
+            if (!_isActiveIssuer[newKey]) {
+                _addToActiveIssuers(newKey);
+                emit IssuerActivated(newKey);
+            }
+        }
+    }
+
+    function deactivateIssuers(address[] calldata issuers) public onlyIntermediate {
+        for (uint256 i = 0; i < issuers.length; i++) {
+            address oldKey = issuers[i];
+            if (_isActiveIssuer[oldKey]) {
+                _removeFromActiveIssuers(oldKey);
+                emit IssuerDeactivated(oldKey);
+            }
+        }
     }
 
     function getRootKey() public view returns (address) {
@@ -46,7 +63,29 @@ contract KeyInfrastructure {
         return _intermediate;
     }
 
-    function getIssuerKey() public view returns (address) {
-        return _issuer;
+    function getActiveIssuers() public view returns (address[] memory) {
+        return _activeIssuers;
+    }
+
+    function isActiveIssuer(address addr) public view returns (bool) {
+        return _isActiveIssuer[addr];
+    }
+
+    function _addToActiveIssuers(address addr) internal {
+        _isActiveIssuer[addr] = true;
+        _activeIssuers.push(addr);
+    }
+
+    function _removeFromActiveIssuers(address addr) internal {
+        _isActiveIssuer[addr] = false;
+
+        for (uint256 i = 0; i < _activeIssuers.length; i++) {
+            address issuer = _activeIssuers[i];
+            if (addr == issuer) {
+                _activeIssuers[i] = _activeIssuers[_activeIssuers.length - 1];
+                _activeIssuers.pop();
+                break;
+            }
+        }
     }
 }

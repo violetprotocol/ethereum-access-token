@@ -50,7 +50,7 @@ task("rotate:IssuerKey")
 
     let tx: ContractTransaction | null = null;
     try {
-      tx = await accessTokenVerifier.rotateIssuer(taskArguments.newissuer);
+      tx = await accessTokenVerifier.activateIssuers([taskArguments.newissuer]);
 
       const receipt = await tx.wait();
 
