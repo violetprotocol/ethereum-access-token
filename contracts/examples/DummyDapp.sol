@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import "hardhat/console.sol";
 import "../AccessTokenConsumer.sol";
 
 contract DummyDapp is AccessTokenConsumer {
@@ -15,7 +14,7 @@ contract DummyDapp is AccessTokenConsumer {
         uint256 expiry,
         address,
         uint256
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 }

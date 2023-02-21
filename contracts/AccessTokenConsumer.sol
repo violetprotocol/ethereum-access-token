@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import "hardhat/console.sol";
 import "./IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumer {
     IAccessTokenVerifier private _verifier;
+    mapping(bytes32 => bool) private _accessTokenUsed;
 
     constructor(address accessTokenVerifier) {
         _verifier = IAccessTokenVerifier(accessTokenVerifier);
@@ -19,6 +19,7 @@ contract AccessTokenConsumer {
     ) {
         require(verify(v, r, s, expiry), "AccessToken: verification failure");
         _;
+        _consumeAccessToken(v, r, s, expiry);
     }
 
     function verify(
@@ -27,6 +28,8 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) internal view returns (bool) {
+        require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: already used");
+
         AccessToken memory token = constructToken(expiry);
         return _verifier.verify(token, v, r, s);
     }
@@ -65,5 +68,26 @@ contract AccessTokenConsumer {
             // Copy bytes from end of signature and expiry section to end of calldata
             calldatacopy(add(inputs, 0x20), endOfSigExp, totalInputSize)
         }
+    }
+
+    function _isAccessTokenUsed(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 expiry
+    ) internal view returns (bool) {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
+        return _accessTokenUsed[accessTokenHash];
+    }
+
+    function _consumeAccessToken(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 expiry
+    ) private {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
+
+        _accessTokenUsed[accessTokenHash] = true;
     }
 }

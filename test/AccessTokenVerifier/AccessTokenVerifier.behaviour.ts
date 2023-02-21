@@ -15,15 +15,15 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
 
   describe("sign and verify", async () => {
     it("should succeed", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
-      await expect(this.auth.verify(this.value, signature.v, signature.r, signature.s)).to.not.be.reverted;
-      expect(await this.auth.callStatic.verify(this.value, signature.v, signature.r, signature.s)).to.be.true;
+      await expect(this.auth.verify(this.token, signature.v, signature.r, signature.s)).to.not.be.reverted;
+      expect(await this.auth.callStatic.verify(this.token, signature.v, signature.r, signature.s)).to.be.true;
     });
 
     it("should revert if signature v is invalid", async function () {
       // The data to sign
-      const value = { ...this.value, expiry: this.value.expiry + 10 };
+      const value = { ...this.token, expiry: this.token.expiry + 10 };
 
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
@@ -34,7 +34,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
 
     it("should revert if signature s is invalid", async function () {
       // The data to sign
-      const value = { ...this.value, expiry: this.value.expiry + 10 };
+      const value = { ...this.token, expiry: this.token.expiry + 10 };
 
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
@@ -47,7 +47,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       const bytes32Zero = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
       // The data to sign
-      const value = { ...this.value, expiry: this.value.expiry + 10 };
+      const value = { ...this.token, expiry: this.token.expiry + 10 };
 
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
@@ -58,7 +58,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
 
     it("should fail with expired token", async function () {
       // The data to sign
-      const value = { ...this.value, expiry: this.value.expiry - 10 };
+      const value = { ...this.token, expiry: this.token.expiry - 1000 };
 
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
@@ -68,52 +68,52 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
     });
 
     it("should fail with incorrect expiry", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
-      const badToken: AccessTokenStruct = { ...this.value, expiry: BigNumber.from(this.value.expiry + 10) };
+      const badToken: AccessTokenStruct = { ...this.token, expiry: BigNumber.from(this.token.expiry + 10) };
 
       expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
     });
 
     it("should fail with incorrect function signature", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
       const badToken: AccessTokenStruct = {
-        ...this.value,
-        functionCall: { ...this.value.functionCall, functionSignature: "0xdeadbeef" },
+        ...this.token,
+        functionCall: { ...this.token.functionCall, functionSignature: "0xdeadbeef" },
       };
 
       expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
     });
 
     it("should fail with incorrect target address", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
       const badToken: AccessTokenStruct = {
-        ...this.value,
-        functionCall: { ...this.value.functionCall, target: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
+        ...this.token,
+        functionCall: { ...this.token.functionCall, target: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
       };
 
       expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
     });
 
     it("should fail with incorrect caller address", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
       const badToken: AccessTokenStruct = {
-        ...this.value,
-        functionCall: { ...this.value.functionCall, caller: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
+        ...this.token,
+        functionCall: { ...this.token.functionCall, caller: "0x25AF0ccA791baEe922D9fa0744880ae6E0422021" },
       };
 
       expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
     });
 
     it("should fail with incorrect function parameters", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.value));
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
       const badToken: AccessTokenStruct = {
-        ...this.value,
-        functionCall: { ...this.value.functionCall, parameters: "0xdd" },
+        ...this.token,
+        functionCall: { ...this.token.functionCall, parameters: "0xdd" },
       };
 
       expect(await this.auth.callStatic.verify(badToken, signature.v, signature.r, signature.s)).to.equal(false);
