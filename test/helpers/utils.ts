@@ -1,6 +1,7 @@
 import { Signature, splitSignature } from "@ethersproject/bytes";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, ethers } from "ethers";
+import { Domain } from "../../src/messages";
 import { packParameters, signAccessToken } from "../../src/utils";
 
 export interface RawEthereumAccessToken {
@@ -20,7 +21,7 @@ export interface SignedEthereumAccessToken {
 
 export const generateEAT = async (
   signer: SignerWithAddress,
-  domain: any,
+  domain: Domain,
   contractInterface: ethers.utils.Interface,
   functionName: string,
   target: string,
