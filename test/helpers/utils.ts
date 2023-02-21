@@ -27,7 +27,7 @@ export const generateEAT = async (
   caller: string,
   parameters: any[],
   expiry: BigNumber,
-): Promise<SignedEthereumAccessToken> => {
+) => {
   const token = {
     expiry,
     functionCall: {
