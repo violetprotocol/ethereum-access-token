@@ -19,7 +19,7 @@ task("setIntermediate")
     console.log("Transaction: ", receipt.transactionHash);
   });
 
-task("setIssuer")
+task("activateIssuers")
   .addParam("verifier", "Verifier contract address")
   .addParam("key", "Intermediate key")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
@@ -30,7 +30,24 @@ task("setIssuer")
       await accessTokenVerifierFactory.attach(taskArguments.verifier)
     );
 
-    const tx = await accessTokenVerifier.rotateIssuer(taskArguments.key);
+    const tx = await accessTokenVerifier.activateIssuers([taskArguments.key]);
+    const receipt = await tx.wait();
+
+    console.log("Transaction: ", receipt.transactionHash);
+  });
+
+task("deactivateIssuers")
+  .addParam("verifier", "Verifier contract address")
+  .addParam("key", "Intermediate key")
+  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+    const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
+      await ethers.getContractFactory("AccessTokenVerifier")
+    );
+    const accessTokenVerifier: AccessTokenVerifier = <AccessTokenVerifier>(
+      await accessTokenVerifierFactory.attach(taskArguments.verifier)
+    );
+
+    const tx = await accessTokenVerifier.deactivateIssuers([taskArguments.key]);
     const receipt = await tx.wait();
 
     console.log("Transaction: ", receipt.transactionHash);
@@ -51,7 +68,7 @@ task("getIntermediate")
     console.log(`Intermediate: ${intermediate}`);
   });
 
-task("getIssuer")
+task("getIssuers")
   .addParam("verifier", "Verifier contract address")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
@@ -61,7 +78,7 @@ task("getIssuer")
       await accessTokenVerifierFactory.attach(taskArguments.verifier)
     );
 
-    const issuer = await accessTokenVerifier.callStatic.getIssuerKey();
+    const issuer = await accessTokenVerifier.callStatic.getActiveIssuers();
 
     console.log(`Issuer: ${issuer}`);
   });
