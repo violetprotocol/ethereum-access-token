@@ -27,7 +27,10 @@ describe("AccessTokenConsumer", function () {
     const dappArtifact: Artifact = await artifacts.readArtifact("DummyDapp");
     const mockArtifact: Artifact = await artifacts.readArtifact("ConsumerMock");
     this.auth = <AccessTokenVerifier>(
-      await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
+      await waffle.deployContract(this.signers.admin, authArtifact, [
+        await this.signers.admin.getChainId(),
+        this.signers.admin.address,
+      ])
     );
     this.dapp = <DummyDapp>await waffle.deployContract(this.signers.admin, dappArtifact, [this.auth.address]);
     await this.auth.rotateIntermediate(this.signers.admin.address);

@@ -21,7 +21,10 @@ describe("AccessTokenVerifier", function () {
 
     const authArtifact: Artifact = await artifacts.readArtifact("AccessTokenVerifier");
     this.auth = <AccessTokenVerifier>(
-      await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
+      await waffle.deployContract(this.signers.admin, authArtifact, [
+        await this.signers.admin.getChainId(),
+        this.signers.admin.address,
+      ])
     );
     await this.auth.rotateIntermediate(this.signers.admin.address);
     await this.auth.activateIssuers([this.signers.admin.address]);

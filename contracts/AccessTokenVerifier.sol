@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.13;
+pragma abicoder v2;
+pragma solidity ^0.7.6;
 
 import "./IAccessTokenVerifier.sol";
 import "./KeyInfrastructure.sol";
@@ -21,12 +22,12 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     // solhint-disable var-name-mixedcase
     bytes32 public DOMAIN_SEPARATOR;
 
-    constructor(address root) KeyInfrastructure(root) {
+    constructor(uint256 chainId, address root) KeyInfrastructure(root) {
         DOMAIN_SEPARATOR = hash(
             EIP712Domain({
                 name: "Ethereum Access Token",
                 version: "1",
-                chainId: block.chainid,
+                chainId: chainId,
                 verifyingContract: address(this)
             })
         );

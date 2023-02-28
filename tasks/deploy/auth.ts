@@ -7,12 +7,12 @@ import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTo
 
 task("deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, waffle }) {
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
       await ethers.getContractFactory("AccessTokenVerifier")
     );
     const accessTokenVerifier: AccessTokenVerifier = <AccessTokenVerifier>(
-      await accessTokenVerifierFactory.deploy(taskArguments.root)
+      await accessTokenVerifierFactory.deploy(waffle.provider.network.chainId, taskArguments.root)
     );
     await accessTokenVerifier.deployed();
     console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
@@ -20,7 +20,7 @@ task("deploy:AccessTokenVerifier")
 
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, network, waffle }) {
     // Change me
     const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
 
@@ -36,16 +36,16 @@ task("hd:deploy:AccessTokenVerifier")
       let accessTokenVerifier: AccessTokenVerifier;
       if (network.name === "polygon") {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
+          await accessTokenVerifierFactory
+            .connect(ledger)
+            .deploy(waffle.provider.network.chainId, taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
         );
-        console.log("accessTokenVerifier", accessTokenVerifier);
       } else {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root)
+          await accessTokenVerifierFactory.connect(ledger).deploy(waffle.provider.network.chainId, taskArguments.root)
         );
       }
 
-      console.log("accessTokenVerifier", accessTokenVerifier);
       await accessTokenVerifier.deployed();
       console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
     } catch (error) {
