@@ -1,5 +1,5 @@
-import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -9,6 +9,7 @@ import "./tasks";
 import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
+import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworkUserConfig } from "hardhat/types";
 
@@ -48,6 +49,7 @@ const chainIds = {
   "polygon-mumbai": 80001,
   rinkeby: 4,
   kovan: 42,
+  goerli: 5,
 };
 
 const getAlchemyUrl = (network: keyof typeof chainIds) => {
