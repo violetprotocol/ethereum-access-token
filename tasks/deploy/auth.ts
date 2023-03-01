@@ -7,7 +7,7 @@ import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTo
 
 task("deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers, waffle }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
       await ethers.getContractFactory("AccessTokenVerifier")
     );
@@ -20,7 +20,7 @@ task("deploy:AccessTokenVerifier")
 
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers, network, waffle }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
     // Change me
     const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
 
