@@ -22,7 +22,13 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     // solhint-disable var-name-mixedcase
     bytes32 public DOMAIN_SEPARATOR;
 
-    constructor(uint256 chainId, address root) KeyInfrastructure(root) {
+    constructor(address root) KeyInfrastructure(root) {
+        uint256 chainId;
+        // solhint-disable no-inline-assembly
+        assembly {
+            chainId := chainid()
+        }
+
         DOMAIN_SEPARATOR = hash(
             EIP712Domain({
                 name: "Ethereum Access Token",

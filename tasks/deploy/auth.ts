@@ -12,7 +12,7 @@ task("deploy:AccessTokenVerifier")
       await ethers.getContractFactory("AccessTokenVerifier")
     );
     const accessTokenVerifier: AccessTokenVerifier = <AccessTokenVerifier>(
-      await accessTokenVerifierFactory.deploy(waffle.provider.network.chainId, taskArguments.root)
+      await accessTokenVerifierFactory.deploy(taskArguments.root)
     );
     await accessTokenVerifier.deployed();
     console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
@@ -36,13 +36,11 @@ task("hd:deploy:AccessTokenVerifier")
       let accessTokenVerifier: AccessTokenVerifier;
       if (network.name === "polygon") {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory
-            .connect(ledger)
-            .deploy(waffle.provider.network.chainId, taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
+          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
         );
       } else {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory.connect(ledger).deploy(waffle.provider.network.chainId, taskArguments.root)
+          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root)
         );
       }
 
