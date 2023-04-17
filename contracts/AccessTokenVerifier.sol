@@ -5,6 +5,7 @@ import "./IAccessTokenVerifier.sol";
 import "./KeyInfrastructure.sol";
 
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
+
     bytes32 private constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -19,17 +20,18 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         );
 
     // solhint-disable var-name-mixedcase
-    bytes32 public DOMAIN_SEPARATOR;
+    // bytes32 public DOMAIN_SEPARATOR;
+
+    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+    // invalidate the cached domain separator if the chain id changes.
+    bytes32 private immutable _cachedDomainSeparator;
+    uint256 private immutable _cachedChainId;
+    address private immutable _cachedThis;
 
     constructor(address root) KeyInfrastructure(root) {
-        DOMAIN_SEPARATOR = hash(
-            EIP712Domain({
-                name: "Ethereum Access Token",
-                version: "1",
-                chainId: block.chainid,
-                verifyingContract: address(this)
-            })
-        );
+        _cachedChainId = block.chainid;
+        _cachedDomainSeparator = _buildDomainSeparator();
+        _cachedThis = address(this);
     }
 
     function hash(EIP712Domain memory eip712Domain) internal pure returns (bytes32) {
@@ -68,7 +70,7 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 r,
         bytes32 s
     ) public view override returns (bool) {
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(token)));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator, hash(token)));
 
         require(token.expiry > block.timestamp, "AccessToken: has expired");
 
@@ -87,5 +89,24 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         }
 
         return _isActiveIssuer[signer];
+    }
+
+    function _domainSeparator() internal view returns (bytes32) {
+        if (address(this)) == _cachedThis && block.chainid == _cachedChainId) {
+            return _cachedDomainSeparator;
+        } else {
+            return _buildDomainSeparator();
+        }
+    }
+
+    function _buildDomainSeparator() private view returns (bytes32) {
+        return hash(
+            EIP712Domain({
+                name: "Ethereum Access Token",
+                version: "1",
+                chainId: block.chainid,
+                verifyingContract: address(this)
+            })
+        );
     }
 }
