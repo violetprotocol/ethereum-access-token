@@ -70,7 +70,7 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 r,
         bytes32 s
     ) public view override returns (bool) {
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator, hash(token)));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
 
         require(token.expiry > block.timestamp, "AccessToken: has expired");
 
@@ -92,7 +92,7 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     }
 
     function _domainSeparator() internal view returns (bytes32) {
-        if (address(this)) == _cachedThis && block.chainid == _cachedChainId) {
+        if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
             return _cachedDomainSeparator;
         } else {
             return _buildDomainSeparator();
