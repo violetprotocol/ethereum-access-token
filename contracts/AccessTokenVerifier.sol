@@ -5,7 +5,6 @@ import "./IAccessTokenVerifier.sol";
 import "./KeyInfrastructure.sol";
 
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
-
     bytes32 private constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -18,9 +17,6 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         keccak256(
             "AccessToken(uint256 expiry,FunctionCall functionCall)FunctionCall(bytes4 functionSignature,address target,address caller,bytes parameters)"
         );
-
-    // solhint-disable var-name-mixedcase
-    // bytes32 public DOMAIN_SEPARATOR;
 
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
     // invalidate the cached domain separator if the chain id changes.
@@ -100,13 +96,14 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     }
 
     function _buildDomainSeparator() private view returns (bytes32) {
-        return hash(
-            EIP712Domain({
-                name: "Ethereum Access Token",
-                version: "1",
-                chainId: block.chainid,
-                verifyingContract: address(this)
-            })
-        );
+        return
+            hash(
+                EIP712Domain({
+                    name: "Ethereum Access Token",
+                    version: "1",
+                    chainId: block.chainid,
+                    verifyingContract: address(this)
+                })
+            );
     }
 }
