@@ -21,11 +21,6 @@ contract KeyInfrastructure {
         _;
     }
 
-    modifier onlyActiveIssuer() {
-        require(_isActiveIssuer[msg.sender], "unauthorised: must be active issuer");
-        _;
-    }
-
     constructor(address root) {
         _root = root;
     }
