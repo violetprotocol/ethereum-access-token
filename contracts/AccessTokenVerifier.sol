@@ -43,7 +43,7 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
             );
     }
 
-    function hash(FunctionCall memory call) internal pure returns (bytes32) {
+    function hash(FunctionCall calldata call) internal pure returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -56,32 +56,36 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
             );
     }
 
-    function hash(AccessToken memory token) internal pure returns (bytes32) {
+    function hash(AccessToken calldata token) internal pure returns (bytes32) {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
     function verify(
-        AccessToken memory token,
+        AccessToken calldata token,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public view override returns (bool) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
 
-        require(token.expiry > block.timestamp, "AccessToken: has expired");
+        // HE -> Has Expired
+        require(token.expiry > block.timestamp, "AccessToken: HE");
 
         if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
-            revert("AccessToken: invalid signature s");
+            // ISS -> Invalid Signature S
+            revert("AccessToken: ISS");
         }
 
         if (v != 27 && v != 28) {
-            revert("AccessToken: invalid signature v");
+            // ISV -> Invalid Signature V
+            revert("AccessToken: ISV");
         }
 
         // If the signature is valid (and not malleable), return the signer address
         address signer = ecrecover(digest, v, r, s);
         if (signer == address(0)) {
-            revert("AccessToken: invalid signature");
+            // IS -> Invalid Signature
+            revert("AccessToken: IS");
         }
 
         return _isActiveIssuer[signer];

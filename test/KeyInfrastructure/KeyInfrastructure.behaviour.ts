@@ -20,7 +20,7 @@ const shouldBehaveLikeKeyInfrastructure = function () {
     it("from wrong key should fail", async function () {
       await expect(
         this.keyInfrastructure.connect(this.signers.user1).rotateIntermediate(this.signers.user1.address),
-      ).to.be.revertedWith("unauthorised: must be root");
+      ).to.be.revertedWith("unauthorised: MBR");
 
       expect(await this.keyInfrastructure.callStatic.getIntermediateKey()).to.equal(this.signers.user0.address);
     });
@@ -71,7 +71,7 @@ const shouldBehaveLikeKeyInfrastructure = function () {
       it("from wrong key should fail", async function () {
         await expect(
           this.keyInfrastructure.connect(this.signers.user0).activateIssuers([this.signers.user0.address]),
-        ).to.be.revertedWith("unauthorised: must be intermediate");
+        ).to.be.revertedWith("unauthorised: MBI");
 
         expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.user0.address)).to.be.true;
         expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([
@@ -117,7 +117,7 @@ const shouldBehaveLikeKeyInfrastructure = function () {
         it("from wrong key should fail", async function () {
           await expect(
             this.keyInfrastructure.connect(this.signers.user1).deactivateIssuers([this.signers.user0.address]),
-          ).to.be.revertedWith("unauthorised: must be intermediate");
+          ).to.be.revertedWith("unauthorised: MBI");
 
           expect(await this.keyInfrastructure.callStatic.isActiveIssuer(this.signers.admin.address)).to.be.true;
           expect(await this.keyInfrastructure.callStatic.getActiveIssuers()).to.deep.equal([
