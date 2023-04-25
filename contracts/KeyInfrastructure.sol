@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 contract KeyInfrastructure {
-    address internal _root;
+    address internal immutable _root;
     address internal _intermediate;
     address[] internal _activeIssuers;
     mapping(address => bool) internal _isActiveIssuer;
@@ -12,12 +12,14 @@ contract KeyInfrastructure {
     event IssuerDeactivated(address deactivatedIssuer);
 
     modifier onlyRoot() {
-        require(msg.sender == _root, "unauthorised: must be root");
+        // MBR -> Must be root
+        require(msg.sender == _root, "unauthorised: MBR");
         _;
     }
 
     modifier onlyIntermediate() {
-        require(msg.sender == _intermediate, "unauthorised: must be intermediate");
+        // MBI -> Must be intermediate
+        require(msg.sender == _intermediate, "unauthorised: MBI");
         _;
     }
 

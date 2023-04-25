@@ -29,7 +29,7 @@ struct AccessToken {
 
 interface IAccessTokenVerifier {
     function verify(
-        AccessToken memory token,
+        AccessToken calldata token,
         uint8 v,
         bytes32 r,
         bytes32 s

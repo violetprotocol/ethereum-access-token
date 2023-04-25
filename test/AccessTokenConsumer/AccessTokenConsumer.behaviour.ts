@@ -320,7 +320,7 @@ const performTestSuiteForFunction = async (
         contract
           .connect(extraAccounts[0])
           [functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: verification failure");
+      ).to.be.revertedWith("AccessToken: VF");
     });
 
     it("with expired token should revert", async function () {
@@ -337,7 +337,7 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](this.signature.v, this.signature.r, signature.s, token.expiry.sub(50), ...parameters),
-      ).to.be.revertedWith("AccessToken: has expired");
+      ).to.be.revertedWith("AccessToken: HE");
     });
 
     it("with incorrect expiry should revert", async function () {
@@ -349,7 +349,7 @@ const performTestSuiteForFunction = async (
           this.token.expiry.add(50),
           ...parameters,
         ),
-      ).to.be.revertedWith("AccessToken: verification failure");
+      ).to.be.revertedWith("AccessToken: VF");
     });
 
     it("with used EAT should revert", async function () {
@@ -359,7 +359,7 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: already used");
+      ).to.be.revertedWith("AccessToken: AU");
     });
 
     it("with incorrect signer should revert", async function () {
@@ -367,7 +367,7 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: verification failure");
+      ).to.be.revertedWith("AccessToken: VF");
     });
 
     it("with incorrect function signature should revert", async function () {
@@ -383,13 +383,13 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: verification failure");
+      ).to.be.revertedWith("AccessToken: VF");
     });
 
     it("with incorrect target contract should revert", async function () {
       await expect(
         fakeMock[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: verification failure");
+      ).to.be.revertedWith("AccessToken: VF");
     });
   });
 };
