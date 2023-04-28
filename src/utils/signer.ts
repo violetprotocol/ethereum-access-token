@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import "dotenv";
 
 // Returns a Wallet object instantiated using 12-word Mnemonic:
 // https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
