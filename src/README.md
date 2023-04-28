@@ -24,7 +24,6 @@ Using yarn:
 const { splitSignature } = require("@ethersproject/bytes");
 const {
   signAccessToken,
-  // Make sure to export $MNEMONIC or $PRIVATE_KEY respectively as env variables
   getSignerFromMnemonic, getSignerFromPrivateKey
   packParameters
 } = require("@violetprotocol/ethereum-access-token-helpers/utils");
