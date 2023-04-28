@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import "hardhat/console.sol";
 import "../AccessTokenConsumer.sol";
 
 contract ConsumerMock is AccessTokenConsumer {
+    // solhint-disable-next-line no-empty-blocks
     constructor(address verifier) AccessTokenConsumer(verifier) {}
 
     function noParams(
@@ -12,7 +12,7 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -21,8 +21,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        address addr
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        address
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -31,8 +31,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        uint256 num
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        uint256
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -41,8 +41,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -51,8 +51,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string memory str
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string memory
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -61,8 +61,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        bytes1 b1
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        bytes1
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -71,8 +71,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        bytes calldata b1
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        bytes calldata
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -81,8 +81,8 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        bytes memory b1
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        bytes memory
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -91,9 +91,9 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        address addr,
-        uint256 num
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        address,
+        uint256
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -102,9 +102,9 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        uint256 num,
-        string memory str
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        uint256,
+        string memory
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -113,9 +113,9 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str,
-        bytes calldata b
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata,
+        bytes calldata
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -124,9 +124,9 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str,
-        bytes calldata b
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata,
+        bytes calldata
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -135,10 +135,10 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str,
-        bytes calldata b,
-        address addr
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata,
+        bytes calldata,
+        address
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -147,11 +147,11 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str,
-        bytes calldata b,
-        address addr,
-        uint256 num
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata,
+        bytes calldata,
+        address,
+        uint256
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 
@@ -160,12 +160,12 @@ contract ConsumerMock is AccessTokenConsumer {
         bytes32 r,
         bytes32 s,
         uint256 expiry,
-        string calldata str,
-        bytes calldata b,
-        address addr,
-        uint256 num,
-        bytes calldata b2
-    ) public view requiresAuth(v, r, s, expiry) returns (bool) {
+        string calldata,
+        bytes calldata,
+        address,
+        uint256,
+        bytes calldata
+    ) public requiresAuth(v, r, s, expiry) returns (bool) {
         return true;
     }
 }

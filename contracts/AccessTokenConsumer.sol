@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import "hardhat/console.sol";
 import "./IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumer {
-    IAccessTokenVerifier private _verifier;
+    IAccessTokenVerifier private immutable _verifier;
+    mapping(bytes32 => bool) private _accessTokenUsed;
 
     constructor(address accessTokenVerifier) {
         _verifier = IAccessTokenVerifier(accessTokenVerifier);
@@ -17,7 +17,9 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) {
-        require(verify(v, r, s, expiry), "AccessToken: verification failure");
+        // VF -> Verification Failure
+        require(verify(v, r, s, expiry), "AccessToken: VF");
+        _consumeAccessToken(v, r, s, expiry);
         _;
     }
 
@@ -27,6 +29,9 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) internal view returns (bool) {
+        // AU -> Already Used
+        require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: AU");
+
         AccessToken memory token = constructToken(expiry);
         return _verifier.verify(token, v, r, s);
     }
@@ -46,6 +51,7 @@ contract AccessTokenConsumer {
     // Removes all references to the proof object except any offsets related to
     // other inputs that are pushed by the proof
     function extractInputs() public pure returns (bytes memory inputs) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             let ptr := mload(0x40)
             calldatacopy(ptr, 0, calldatasize())
@@ -64,5 +70,26 @@ contract AccessTokenConsumer {
             // Copy bytes from end of signature and expiry section to end of calldata
             calldatacopy(add(inputs, 0x20), endOfSigExp, totalInputSize)
         }
+    }
+
+    function _isAccessTokenUsed(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 expiry
+    ) internal view returns (bool) {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
+        return _accessTokenUsed[accessTokenHash];
+    }
+
+    function _consumeAccessToken(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 expiry
+    ) private {
+        bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
+
+        _accessTokenUsed[accessTokenHash] = true;
     }
 }

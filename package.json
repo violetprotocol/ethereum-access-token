@@ -9,6 +9,7 @@
     "contracts"
   ],
   "devDependencies": {
+    "@anders-t/ethers-ledger": "^1.0.4",
     "@codechecks/client": "^0.1.12",
     "@commitlint/cli": "^16.2.1",
     "@commitlint/config-conventional": "^16.2.1",
@@ -28,6 +29,7 @@
     "@types/node": "^17.0.18",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
+    "axios": "^0.27.2",
     "chai": "^4.3.6",
     "commitizen": "^4.2.4",
     "cross-env": "^7.0.3",

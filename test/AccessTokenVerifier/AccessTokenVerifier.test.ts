@@ -1,15 +1,13 @@
 import { artifacts, ethers, waffle } from "hardhat";
+import chai from "chai";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { Signers } from "../types";
 import { shouldBehaveLikeAccessTokenVerifier } from "./AccessTokenVerifier.behaviour";
 import { AccessTokenVerifier } from "../../src/types";
 
-const chai = require("chai");
 const { solidity } = waffle;
 chai.use(solidity);
-const { expect } = chai;
-const { BigNumber } = ethers;
 
 describe("AccessTokenVerifier", function () {
   before(async function () {
@@ -26,7 +24,7 @@ describe("AccessTokenVerifier", function () {
       await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
     );
     await this.auth.rotateIntermediate(this.signers.admin.address);
-    await this.auth.rotateIssuer(this.signers.admin.address);
+    await this.auth.activateIssuers([this.signers.admin.address]);
 
     this.domain = {
       name: "Ethereum Access Token",
@@ -35,8 +33,8 @@ describe("AccessTokenVerifier", function () {
       verifyingContract: this.auth.address,
     };
 
-    this.value = {
-      expiry: Math.floor(new Date().getTime() / 1000) + 10,
+    this.token = {
+      expiry: Math.floor(new Date().getTime() / 1000) + 1000,
       functionCall: {
         functionSignature: "0x0f694584",
         target: this.auth.address,
