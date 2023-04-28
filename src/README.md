@@ -22,6 +22,11 @@ Using yarn:
 
 ```typescript
 const { splitSignature } = require("@ethersproject/bytes");
+const {
+  signAccessToken,
+  getSignerFromMnemonic, getSignerFromPrivateKey
+  packParameters
+} = require("@violetprotocol/ethereum-access-token-helpers/utils");
 
 const INTERVAL: number = 100 // seconds
 const FUNCTION_SIGNATURE = "0xabcdefgh";
