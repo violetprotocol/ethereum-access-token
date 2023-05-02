@@ -6,7 +6,6 @@ import "../AccessTokenConsumer.sol";
 contract DummyDapp is AccessTokenConsumer {
     address private _owner;
 
-    // solhint-disable-next-line no-empty-blocks
     constructor(address verifier) AccessTokenConsumer(verifier) {
         _owner = msg.sender;
     }
