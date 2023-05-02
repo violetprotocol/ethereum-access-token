@@ -5,11 +5,11 @@ pragma solidity ~0.7.6;
 import "./IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumer {
-    IAccessTokenVerifier private _verifier;
+    IAccessTokenVerifier public verifier;
     mapping(bytes32 => bool) private _accessTokenUsed;
 
     constructor(address accessTokenVerifier) {
-        _verifier = IAccessTokenVerifier(accessTokenVerifier);
+        verifier = IAccessTokenVerifier(accessTokenVerifier);
     }
 
     modifier requiresAuth(
@@ -23,6 +23,10 @@ contract AccessTokenConsumer {
         _consumeAccessToken(v, r, s, expiry);
     }
 
+    function setVerifier(address newVerifier) internal {
+        verifier = IAccessTokenVerifier(newVerifier);
+    }
+
     function verify(
         uint8 v,
         bytes32 r,
@@ -32,7 +36,7 @@ contract AccessTokenConsumer {
         require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: already used");
 
         AccessToken memory token = constructToken(expiry);
-        return _verifier.verify(token, v, r, s);
+        return verifier.verify(token, v, r, s);
     }
 
     function constructToken(uint256 expiry) internal view returns (AccessToken memory token) {
