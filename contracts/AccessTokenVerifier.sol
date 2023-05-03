@@ -32,7 +32,7 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
             chainId := chainid()
         }
         _cachedChainId = chainId;
-        _cachedDomainSeparator = _buildDomainSeparator();
+        _cachedDomainSeparator = _buildDomainSeparator(chainId);
         _cachedThis = address(this);
     }
 
@@ -106,16 +106,11 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         if (address(this) == _cachedThis && chainId == _cachedChainId) {
             return _cachedDomainSeparator;
         } else {
-            return _buildDomainSeparator();
+            return _buildDomainSeparator(chainId);
         }
     }
 
-    function _buildDomainSeparator() private view returns (bytes32) {
-        uint256 chainId;
-        // solhint-disable no-inline-assembly
-        assembly {
-            chainId := chainid()
-        }
+    function _buildDomainSeparator(uint256 chainId) private view returns (bytes32) {
         return
             hash(
                 EIP712Domain({
