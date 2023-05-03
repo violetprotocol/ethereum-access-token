@@ -18,9 +18,10 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) {
-        require(verify(v, r, s, expiry), "AccessToken: verification failure");
-        _;
+        // VF -> Verification Failure
+        require(verify(v, r, s, expiry), "AccessToken: VF");
         _consumeAccessToken(v, r, s, expiry);
+        _;
     }
 
     function setVerifier(address newVerifier) internal {
@@ -33,7 +34,8 @@ contract AccessTokenConsumer {
         bytes32 s,
         uint256 expiry
     ) internal view returns (bool) {
-        require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: already used");
+        // AU -> Already Used
+        require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: AU");
 
         AccessToken memory token = constructToken(expiry);
         return verifier.verify(token, v, r, s);
