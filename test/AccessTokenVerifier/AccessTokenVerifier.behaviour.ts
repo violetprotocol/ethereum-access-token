@@ -28,7 +28,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
       await expect(this.auth.verify(value, invalidSignatureV, signature.r, signature.s)).to.be.revertedWith(
-        "AccessToken: invalid signature v",
+        "AccessToken: ISV",
       );
     });
 
@@ -39,7 +39,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
       await expect(this.auth.verify(value, signature.v, signature.r, invalidSignatureS)).to.be.revertedWith(
-        "AccessToken: invalid signature s",
+        "AccessToken: ISS",
       );
     });
 
@@ -52,7 +52,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
       await expect(this.auth.verify(value, signature.v, bytes32Zero, bytes32Zero)).to.be.revertedWith(
-        "AccessToken: invalid signature",
+        "AccessToken: IS",
       );
     });
 
@@ -63,7 +63,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 
       await expect(this.auth.verify(value, signature.v, signature.r, signature.s)).to.be.revertedWith(
-        "AccessToken: has expired",
+        "AccessToken: HE",
       );
     });
 
