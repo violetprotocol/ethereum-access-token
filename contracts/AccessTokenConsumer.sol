@@ -19,8 +19,8 @@ contract AccessTokenConsumer {
         uint256 expiry
     ) {
         require(verify(v, r, s, expiry), "AccessToken: verification failure");
-        _;
         _consumeAccessToken(v, r, s, expiry);
+        _;
     }
 
     function setVerifier(address newVerifier) internal {
