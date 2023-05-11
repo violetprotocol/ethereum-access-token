@@ -95,8 +95,8 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         }
 
         return _isActiveIssuer[signer];
-    }    
-    
+    }
+
     function _domainSeparator() internal view returns (bytes32) {
         uint256 chainId;
         // solhint-disable no-inline-assembly
