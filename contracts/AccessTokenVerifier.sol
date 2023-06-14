@@ -64,15 +64,9 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         AccessToken calldata token,
         uint8 v,
         bytes32 r,
-        bytes32 s,
-        address expectedSigner
+        bytes32 s
     ) external view returns (address) {
-        address signer = _retrieveSignerFromToken(token, v, r, s);
-        if (signer == expectedSigner) {
-            return signer;
-        } else {
-            return address(0);
-        }
+        return _retrieveSignerFromToken(token, v, r, s);
     }
 
     function verify(
@@ -82,11 +76,6 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 s
     ) public view override returns (bool) {
         address signer = _retrieveSignerFromToken(token, v, r, s);
-        if (signer == address(0)) {
-            // IS -> Invalid Signature
-            revert("AccessToken: IS");
-        }
-
         return _isActiveIssuer[signer];
     }
 
@@ -133,6 +122,12 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
 
         // If the signature is valid (and not malleable), return the signer address
         address signer = ecrecover(digest, v, r, s);
+
+        if (signer == address(0)) {
+            // IS -> Invalid Signature
+            revert("AccessToken: IS");
+        }
+
         return signer;
     }
 }

@@ -24,35 +24,10 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
     it("should return signer address", async function () {
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
 
-      await expect(
-        this.auth.verifySignerOf(this.token, signature.v, signature.r, signature.s, this.signers.admin.address),
-      ).to.not.be.reverted;
-      expect(
-        await this.auth.callStatic.verifySignerOf(
-          this.token,
-          signature.v,
-          signature.r,
-          signature.s,
-          this.signers.admin.address,
-        ),
-      ).to.equal(this.signers.admin.address);
-    });
-
-    it("should return 0 address", async function () {
-      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
-
-      await expect(
-        this.auth.verifySignerOf(this.token, signature.v, signature.r, signature.s, this.signers.user0.address),
-      ).to.not.be.reverted;
-      expect(
-        await this.auth.callStatic.verifySignerOf(
-          this.token,
-          signature.v,
-          signature.r,
-          signature.s,
-          this.signers.user0.address,
-        ),
-      ).to.equal(ethers.constants.Zero);
+      await expect(this.auth.verifySignerOf(this.token, signature.v, signature.r, signature.s)).to.not.be.reverted;
+      expect(await this.auth.callStatic.verifySignerOf(this.token, signature.v, signature.r, signature.s)).to.equal(
+        this.signers.admin.address,
+      );
     });
 
     it("should revert if signature v is invalid", async function () {
