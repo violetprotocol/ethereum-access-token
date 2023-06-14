@@ -60,34 +60,22 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
+    function verifySignerOf(
+        AccessToken calldata token,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external view returns (address) {
+        return _retrieveSignerFromToken(token, v, r, s);
+    }
+
     function verify(
         AccessToken calldata token,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public view override returns (bool) {
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
-
-        // HE -> Has Expired
-        require(token.expiry > block.timestamp, "AccessToken: HE");
-
-        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
-            // ISS -> Invalid Signature S
-            revert("AccessToken: ISS");
-        }
-
-        if (v != 27 && v != 28) {
-            // ISV -> Invalid Signature V
-            revert("AccessToken: ISV");
-        }
-
-        // If the signature is valid (and not malleable), return the signer address
-        address signer = ecrecover(digest, v, r, s);
-        if (signer == address(0)) {
-            // IS -> Invalid Signature
-            revert("AccessToken: IS");
-        }
-
+        address signer = _retrieveSignerFromToken(token, v, r, s);
         return _isActiveIssuer[signer];
     }
 
@@ -109,5 +97,37 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
                     verifyingContract: address(this)
                 })
             );
+    }
+
+    function _retrieveSignerFromToken(
+        AccessToken calldata token,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view returns (address) {
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
+
+        // HE -> Has Expired
+        require(token.expiry > block.timestamp, "AccessToken: HE");
+
+        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
+            // ISS -> Invalid Signature S
+            revert("AccessToken: ISS");
+        }
+
+        if (v != 27 && v != 28) {
+            // ISV -> Invalid Signature V
+            revert("AccessToken: ISV");
+        }
+
+        // If the signature is valid (and not malleable), return the signer address
+        address signer = ecrecover(digest, v, r, s);
+
+        if (signer == address(0)) {
+            // IS -> Invalid Signature
+            revert("AccessToken: IS");
+        }
+
+        return signer;
     }
 }

@@ -41,6 +41,7 @@
     "ethers": "^5.5.4",
     "fs-extra": "^10.0.0",
     "hardhat": "^2.8.4",
+    "hardhat-contract-sizer": "^2.9.0",
     "hardhat-gas-reporter": "^1.0.8",
     "husky": "^7.0.4",
     "lint-staged": "^12.3.4",
@@ -84,6 +85,7 @@
     "prepublishOnly": "pinst --disable",
     "prettier": "prettier --config ./.prettierrc.yaml --write \"**/*.{js,json,md,sol,ts}\"",
     "prettier:check": "prettier --check --config ./.prettierrc.yaml \"**/*.{js,json,md,sol,ts}\"",
+    "size": "hardhat size-contracts",
     "test": "hardhat test",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
   }
