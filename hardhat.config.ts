@@ -45,6 +45,7 @@ const chainIds = {
   hardhat: 31337,
   mainnet: 1,
   optimism: 10,
+  optimismGoerli: 420,
   "polygon-mainnet": 137,
   "polygon-mumbai": 80001,
   rinkeby: 4,
@@ -57,6 +58,8 @@ const getAlchemyUrl = (network: keyof typeof chainIds) => {
       return process.env.ARBITRUM_ONE_RPC_URL;
     case "optimism":
       return process.env.OPTIMISM_MAINNET_RPC_URL;
+    case "optimismGoerli":
+      return process.env.OPTIMISM_GOERLI_RPC_URL;
     case "mainnet":
       return process.env.ETHEREUM_MAINNET_RPC_URL;
     case "polygon-mumbai":
@@ -111,9 +114,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      arbitrumOne: process.env.ARBSCAN_API_KEY,
-      optimisticEthereum: process.env.OPTIMISM_API_KEY,
+      mainnet: `${process.env.ETHERSCAN_API_KEY}`,
+      arbitrumOne: `${process.env.ARBSCAN_API_KEY}`,
+      optimisticEthereum: `${process.env.OPTIMISM_API_KEY}`,
+      optimisticGoerli: `${process.env.OPTIMISM_API_KEY}`,
     },
   },
   networks: {
@@ -129,6 +133,7 @@ const config: HardhatUserConfig = {
     // bsc: getChainConfig("bsc"),
     mainnet: getChainConfig("mainnet"),
     optimism: getChainConfig("optimism"),
+    optimismGoerli: getChainConfig("optimismGoerli"),
     polygon: getChainConfig("polygon-mainnet"),
     polygonMumbai: getChainConfig("polygon-mumbai"),
     // rinkeby: getChainConfig("rinkeby"),
