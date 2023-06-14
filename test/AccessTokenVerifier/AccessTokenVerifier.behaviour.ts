@@ -30,13 +30,24 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       );
     });
 
-    it("should not validate wrong address", async function () {
+    it("should not return wrong address", async function () {
       const signature = splitSignature(await signAccessToken(this.signers.user0, this.domain, this.token));
 
       await expect(this.auth.verifySignerOf(this.token, signature.v, signature.r, signature.s)).to.not.be.reverted;
       expect(await this.auth.callStatic.verifySignerOf(this.token, signature.v, signature.r, signature.s)).to.not.equal(
         this.signers.admin.address,
       );
+    });
+
+    it("should return different signer with malformed token", async function () {
+      const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, this.token));
+
+      const malformedSComponent = signature.s.slice(0, -1) + "E";
+      await expect(this.auth.verifySignerOf(this.token, signature.v, signature.r, malformedSComponent)).to.not.be
+        .reverted;
+      expect(
+        await this.auth.callStatic.verifySignerOf(this.token, signature.v, signature.r, malformedSComponent),
+      ).to.not.equal(this.signers.admin.address);
     });
 
     it("should revert if signature v is invalid", async function () {
