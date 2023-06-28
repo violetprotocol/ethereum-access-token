@@ -5,6 +5,7 @@ import { LedgerSigner } from "@anders-t/ethers-ledger";
 import { AccessTokenVerifier } from "../../src/types/AccessTokenVerifier";
 import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTokenVerifier__factory";
 
+// Before running this task, make sure that you have specified the right Etherscan API key in .env.
 task("deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
   .setAction(async function (taskArguments: TaskArguments, { ethers, run }) {
@@ -27,6 +28,7 @@ task("deploy:AccessTokenVerifier")
     });
   });
 
+// Before running this task, make sure that you have specified the right Etherscan API key in .env.
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
   .setAction(async function (taskArguments: TaskArguments, { ethers, network, run }) {
