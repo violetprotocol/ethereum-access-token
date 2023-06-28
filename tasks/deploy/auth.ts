@@ -7,7 +7,9 @@ import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTo
 
 task("deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, run }) {
+    console.log(`Deploying Access Token Verifier...`);
+
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
       await ethers.getContractFactory("AccessTokenVerifier")
     );
@@ -16,11 +18,18 @@ task("deploy:AccessTokenVerifier")
     );
     await accessTokenVerifier.deployed();
     console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
+
+    console.log("Verifying contract...");
+
+    await run("verify:verify", {
+      address: accessTokenVerifier.address,
+      constructorArguments: [taskArguments.root],
+    });
   });
 
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
-  .setAction(async function (taskArguments: TaskArguments, { ethers, network }) {
+  .setAction(async function (taskArguments: TaskArguments, { ethers, network, run }) {
     // Change me
     const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
 
@@ -48,6 +57,13 @@ task("hd:deploy:AccessTokenVerifier")
       console.log("accessTokenVerifier", accessTokenVerifier);
       await accessTokenVerifier.deployed();
       console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
+
+      console.log("Verifying contract...");
+
+      await run("verify:verify", {
+        address: accessTokenVerifier.address,
+        constructorArguments: [taskArguments.root],
+      });
     } catch (error) {
       console.log(error);
     }
