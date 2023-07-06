@@ -17,9 +17,10 @@ task("relay:activateIssuers", "Uses OZ Relayer to activate issuers")
     const accessTokenVerifier = <AccessTokenVerifier>(
       await hre.ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract, signer)
     );
-    const tx = await accessTokenVerifier.activateIssuers([taskArguments.newissuer]);
+    const checksummedIssuer = hre.ethers.utils.getAddress(taskArguments.newissuer);
+    const tx = await accessTokenVerifier.activateIssuers([checksummedIssuer]);
     const mined = await tx.wait();
     console.log("Transaction has been mined.");
-    console.log(`Activated issuer ${taskArguments.newissuer}`);
+    console.log(`Activated issuer ${checksummedIssuer}`);
     console.log("Transaction hash", mined.transactionHash);
   });

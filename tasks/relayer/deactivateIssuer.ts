@@ -17,9 +17,10 @@ task("relay:deactivateIssuers", "Uses OZ Relayer to deactivate issuers")
     const accessTokenVerifier = <AccessTokenVerifier>(
       await hre.ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract, signer)
     );
-    const tx = await accessTokenVerifier.deactivateIssuers([taskArguments.oldissuer]);
+    const checksummedIssuer = hre.ethers.utils.getAddress(taskArguments.oldissuer);
+    const tx = await accessTokenVerifier.deactivateIssuers([checksummedIssuer]);
     const mined = await tx.wait();
     console.log("Transaction has been mined.");
-    console.log(`Deactivated issuer ${taskArguments.oldissuer}`);
+    console.log(`Deactivated issuer ${checksummedIssuer}`);
     console.log("Transaction hash", mined.transactionHash);
   });
