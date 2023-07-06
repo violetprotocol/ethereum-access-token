@@ -23,12 +23,7 @@ contract AccessTokenConsumer {
         _;
     }
 
-    function verify(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) internal view returns (bool) {
+    function verify(uint8 v, bytes32 r, bytes32 s, uint256 expiry) internal view returns (bool) {
         // AU -> Already Used
         require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: AU");
 
@@ -80,22 +75,12 @@ contract AccessTokenConsumer {
         }
     }
 
-    function _isAccessTokenUsed(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) internal view returns (bool) {
+    function _isAccessTokenUsed(uint8 v, bytes32 r, bytes32 s, uint256 expiry) internal view returns (bool) {
         bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
         return _accessTokenUsed[accessTokenHash];
     }
 
-    function _consumeAccessToken(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) private {
+    function _consumeAccessToken(uint8 v, bytes32 r, bytes32 s, uint256 expiry) private {
         bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
 
         _accessTokenUsed[accessTokenHash] = true;

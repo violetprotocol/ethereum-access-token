@@ -21,6 +21,7 @@
     "@nomicfoundation/hardhat-verify": "^1.0.3",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
+    "@openzeppelin/defender-relay-client": "^1.46.0",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",
     "@types/chai": "^4.3.0",
