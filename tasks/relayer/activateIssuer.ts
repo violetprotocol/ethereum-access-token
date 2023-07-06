@@ -20,5 +20,6 @@ task("relay:activateIssuers", "Uses OZ Relayer to activate issuers")
     const tx = await accessTokenVerifier.activateIssuers([taskArguments.newissuer]);
     const mined = await tx.wait();
     console.log("Transaction has been mined.");
+    console.log(`Activated issuer ${taskArguments.newissuer}`);
     console.log("Transaction hash", mined.transactionHash);
   });

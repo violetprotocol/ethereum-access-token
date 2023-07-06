@@ -20,5 +20,6 @@ task("relay:deactivateIssuers", "Uses OZ Relayer to deactivate issuers")
     const tx = await accessTokenVerifier.deactivateIssuers([taskArguments.oldissuer]);
     const mined = await tx.wait();
     console.log("Transaction has been mined.");
+    console.log(`Deactivated issuer ${taskArguments.oldissuer}`);
     console.log("Transaction hash", mined.transactionHash);
   });
