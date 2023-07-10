@@ -9,7 +9,11 @@ task("rotate:IntermediateKey")
   .addParam("newintermediate", "Address of the new intermediate key")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const newIntermediateKey = taskArguments.newintermediate;
-    if (!newIntermediateKey || newIntermediateKey === ethers.constants.AddressZero) {
+    if (
+      !newIntermediateKey ||
+      newIntermediateKey === ethers.constants.AddressZero ||
+      !ethers.utils.isAddress(newIntermediateKey)
+    ) {
       throw new Error("Invalid new intermediate key");
     }
 
@@ -41,7 +45,11 @@ task("hd:rotate:IntermediateKey")
   .addParam("newintermediate", "Address of the new intermediate key")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const newIntermediateKey = taskArguments.newintermediate;
-    if (!newIntermediateKey || newIntermediateKey === ethers.constants.AddressZero) {
+    if (
+      !newIntermediateKey ||
+      newIntermediateKey === ethers.constants.AddressZero ||
+      !ethers.utils.isAddress(newIntermediateKey)
+    ) {
       throw new Error("Invalid new intermediate key");
     }
 
