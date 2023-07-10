@@ -20,3 +20,4 @@ rules:
     - error
     - argsIgnorePattern: "_"
       varsIgnorePattern: "_"
+ignorePatterns: ["README.md"]
