@@ -23,12 +23,7 @@ contract AccessTokenConsumer {
         _;
     }
 
-    function verify(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) internal view returns (bool) {
+    function verify(uint8 v, bytes32 r, bytes32 s, uint256 expiry) internal view returns (bool) {
         // AU -> Already Used
         require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: AU");
 
@@ -53,41 +48,39 @@ contract AccessTokenConsumer {
     function extractInputs() public pure returns (bytes memory inputs) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
+            // Allocate memory from free memory pointer
             let ptr := mload(0x40)
+            // Copy calldata to memory
             calldatacopy(ptr, 0, calldatasize())
+            // Update free memory pointer to point to the end of the copied calldata
             mstore(0x40, add(ptr, calldatasize()))
 
+            // Set starting position after the first 4 bytes (function signature)
             let startPos := 0x04
+            // Add 128 bytes to the starting position to calculate the end position of the EAT params
+            // since each EAT param (v,r,s,expiry) takes 32 bytes
             let endOfSigExp := add(startPos, 0x80)
+            // Compute the size of the remaining function parameters (end of calldata - end position of EAT params)
             let totalInputSize := sub(calldatasize(), endOfSigExp)
 
-            // Overwrite data to calldata pointer
+            // Overwrite inputs pointer to free memory pointer
             inputs := ptr
 
             // Store expected length of total byte array as first value
             mstore(inputs, totalInputSize)
 
-            // Copy bytes from end of signature and expiry section to end of calldata
+            // Copy bytes from end of signature and expiry section to end of calldata,
+            // right after the 32 bytes (0x20) reserved for totalInputSize
             calldatacopy(add(inputs, 0x20), endOfSigExp, totalInputSize)
         }
     }
 
-    function _isAccessTokenUsed(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) internal view returns (bool) {
+    function _isAccessTokenUsed(uint8 v, bytes32 r, bytes32 s, uint256 expiry) internal view returns (bool) {
         bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
         return _accessTokenUsed[accessTokenHash];
     }
 
-    function _consumeAccessToken(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        uint256 expiry
-    ) private {
+    function _consumeAccessToken(uint8 v, bytes32 r, bytes32 s, uint256 expiry) private {
         bytes32 accessTokenHash = keccak256(abi.encodePacked(v, r, s, expiry));
 
         _accessTokenUsed[accessTokenHash] = true;

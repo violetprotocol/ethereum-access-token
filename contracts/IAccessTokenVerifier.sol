@@ -28,10 +28,5 @@ struct AccessToken {
 }
 
 interface IAccessTokenVerifier {
-    function verify(
-        AccessToken calldata token,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external view returns (bool);
+    function verify(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) external view returns (bool);
 }

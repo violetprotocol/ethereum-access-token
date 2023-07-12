@@ -60,21 +60,11 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
-    function verifySignerOf(
-        AccessToken calldata token,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external view returns (address) {
+    function verifySignerOf(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) external view returns (address) {
         return _retrieveSignerFromToken(token, v, r, s);
     }
 
-    function verify(
-        AccessToken calldata token,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public view override returns (bool) {
+    function verify(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) public view override returns (bool) {
         address signer = _retrieveSignerFromToken(token, v, r, s);
         return _isActiveIssuer[signer];
     }
