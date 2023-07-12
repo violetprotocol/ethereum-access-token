@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import "../AccessTokenConsumer.sol";
+import { AccessTokenConsumer } from "../AccessTokenConsumer.sol";
 
 contract ConsumerMock is AccessTokenConsumer {
     // solhint-disable-next-line no-empty-blocks

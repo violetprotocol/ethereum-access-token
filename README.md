@@ -1,6 +1,6 @@
 # Ethereum Access Token
 
-Implemention of [EIP-712](https://eips.ethereum.org/EIPS/eip-721) for signed access token verification.
+Implementation of [EIP-712](https://eips.ethereum.org/EIPS/eip-721) for signed access token verification.
 
 Tokens authorise a user to perform specific on-chain interactions as determined by the token issuer.
 
@@ -32,7 +32,7 @@ function transfer(address recipient, uint256 amount) public;
 then the version that requires authorisation is the following:
 
 ```solidity
-function tranfer(
+function transfer(
   uint8 v,
   bytes32 r,
   bytes32 s,
