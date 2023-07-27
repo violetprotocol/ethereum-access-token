@@ -2,7 +2,6 @@ import { ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { TaskArguments } from "hardhat/types";
 import { AccessTokenVerifier } from "../src/types";
-import { LedgerSigner } from "@anders-t/ethers-ledger";
 
 task("rotate:IntermediateKey")
   .addParam("verifiercontract", "Address of the Access Token Verifier Contract")
@@ -53,7 +52,9 @@ task("hd:rotate:IntermediateKey")
       throw new Error("Invalid new intermediate key");
     }
 
-    const ledger = new LedgerSigner(ethers.provider);
+    const signer = ethers.provider.getSigner();
+    const signerAddress = await signer.getAddress();
+    console.log(`Rotating intermediateKey with signer ${signerAddress}.`);
 
     const accessTokenVerifier = <AccessTokenVerifier>(
       await ethers.getContractAt("AccessTokenVerifier", taskArguments.verifiercontract)
@@ -61,7 +62,7 @@ task("hd:rotate:IntermediateKey")
 
     let tx: ContractTransaction | null = null;
     try {
-      tx = await accessTokenVerifier.connect(ledger).rotateIntermediate(taskArguments.newintermediate);
+      tx = await accessTokenVerifier.connect(signer).rotateIntermediate(taskArguments.newintermediate);
       const receipt = await tx.wait();
 
       if (receipt?.status === 1) {
