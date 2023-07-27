@@ -30,8 +30,10 @@ task("deploy:AccessTokenVerifier")
 // Before running this task, make sure that you have specified the right Etherscan API key in .env.
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
+  .addOptionalParam("gasPrice", "Gas price to use, in gwei")
   .setAction(async function (taskArguments: TaskArguments, { ethers, network, run }) {
-    // Change me
+    const gasPrice = taskArguments.gasPrice || "2";
+    const DEFAULT_GAS_PRICE = ethers.utils.parseUnits(gasPrice, "gwei");
     const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
 
     const signer = ethers.provider.getSigner();
@@ -53,14 +55,11 @@ task("hd:deploy:AccessTokenVerifier")
         console.log("accessTokenVerifier", accessTokenVerifier);
       } else {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory
-            .connect(signer)
-            .deploy(taskArguments.root, { gasPrice: ethers.utils.parseUnits("5", "gwei") })
+          await accessTokenVerifierFactory.connect(signer).deploy(taskArguments.root, { gasPrice: DEFAULT_GAS_PRICE })
         );
       }
 
-      console.log("accessTokenVerifier", accessTokenVerifier);
-      await accessTokenVerifier.deployed();
+      await accessTokenVerifier.deployTransaction.wait(5);
       console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
 
       console.log("Verifying contract...");
