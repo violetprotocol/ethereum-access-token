@@ -8,18 +8,11 @@ struct EIP712Domain {
     address verifyingContract;
 }
 
-// struct FunctionParam {
-//     string typ; // explicit full solidity atomic type of the parameter
-//     bytes value; // the byte formatted parameter value
-// }
-
 struct FunctionCall {
-    // string name; // name of the function being called
     bytes4 functionSignature;
     address target;
     address caller;
     bytes parameters;
-    // FunctionParam[] parameters; // array of input parameters to the function call
 }
 
 struct AccessToken {
