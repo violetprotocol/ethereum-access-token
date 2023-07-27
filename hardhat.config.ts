@@ -1,5 +1,6 @@
 import "@nomiclabs/hardhat-waffle";
 import "@nomicfoundation/hardhat-verify";
+import "@nomicfoundation/hardhat-ledger";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
