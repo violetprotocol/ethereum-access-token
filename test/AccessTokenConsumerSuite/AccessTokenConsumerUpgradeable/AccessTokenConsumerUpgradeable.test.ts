@@ -1,11 +1,10 @@
-import { artifacts, ethers, waffle } from "hardhat";
+import { artifacts, ethers, waffle, upgrades } from "hardhat";
 import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import chai from "chai";
 
-import { DummyDapp } from "../../../src/types/DummyDapp";
 import { shouldBehaveLikeAccessTokenConsumer } from "../AccessTokenConsumer.behaviour";
-import { AccessTokenVerifier, UpgradeableConsumerMock } from "../../../src/types";
+import { AccessTokenVerifier, UpgradeableConsumerMock, DummyDappUpgradeable__factory, DummyDappUpgradeable } from "../../../src/types";
 import { Signers } from "../../types";
 
 const { solidity } = waffle;
@@ -24,14 +23,20 @@ describe("AccessTokenConsumerUpgradeable", function () {
 
   before("deploy new", async function () {
     const authArtifact: Artifact = await artifacts.readArtifact("AccessTokenVerifier");
-    const dappArtifact: Artifact = await artifacts.readArtifact("DummyDapp");
     const mockArtifact: Artifact = await artifacts.readArtifact("UpgradeableConsumerMock");
+    const dummyDappFactory: DummyDappUpgradeable__factory = <DummyDappUpgradeable__factory>await ethers.getContractFactory("DummyDappUpgradeable");
+
     this.auth = <AccessTokenVerifier>(
       await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
     );
-    this.dapp = <DummyDapp>await waffle.deployContract(this.signers.admin, dappArtifact, [this.auth.address]);
     await this.auth.rotateIntermediate(this.signers.admin.address);
     await this.auth.activateIssuers([this.signers.admin.address]);
+
+    this.dapp = <DummyDappUpgradeable>(
+      await upgrades.deployProxy(dummyDappFactory, [this.auth.address], { initializer: "initialize" })
+    );
+    await this.dapp.deployed();
+
     this.mock = <UpgradeableConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact);
     await this.mock.__INIT__(this.auth.address);
     this.fakeMock = <UpgradeableConsumerMock>await waffle.deployContract(this.signers.admin, mockArtifact);

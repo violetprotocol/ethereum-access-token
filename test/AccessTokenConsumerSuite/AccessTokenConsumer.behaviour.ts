@@ -1,4 +1,4 @@
-import { ethers, waffle } from "hardhat";
+import { artifacts, ethers, waffle } from "hardhat";
 import chai from "chai";
 import { signAccessToken } from "../../src/utils/signAccessToken";
 import { generateEAT } from "../helpers/utils";
@@ -6,6 +6,8 @@ import { splitSignature } from "@ethersproject/bytes";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Domain } from "../../src/messages";
 import { Contract } from "ethers";
+import { Artifact } from "hardhat/types";
+import { AccessTokenVerifier } from "../../src/types";
 
 const { solidity } = waffle;
 chai.use(solidity);
@@ -13,6 +15,25 @@ const { expect } = chai;
 const { BigNumber } = ethers;
 
 const shouldBehaveLikeAccessTokenConsumer = function () {
+  describe("Verifier update", async function () {
+    after(async function () {
+      // restore verifier
+      await this.dapp.updateVerifier(this.auth.address);
+    });
+
+    it(`should let child contracts inheriting AccessTokenConsumer update the verifier's address`, async function () {
+      const accessTokenVerifierArtifact: Artifact = await artifacts.readArtifact("AccessTokenVerifier");
+      const newVerifier = <AccessTokenVerifier>(
+        await waffle.deployContract(this.signers.admin, accessTokenVerifierArtifact, [this.signers.admin.address])
+      );
+      const newVerifierAddress = newVerifier.address;
+
+      await this.dapp.updateVerifier(newVerifierAddress);
+
+      expect(await this.dapp.verifier()).to.eq(newVerifierAddress);
+    });
+  });
+
   describe("sign and verify", async () => {
     context("when calling function", async function () {
       context("with parameters", async function () {

@@ -4,11 +4,11 @@ pragma solidity >=0.8.13;
 import { IAccessTokenVerifier, AccessToken, FunctionCall } from "./IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumer {
-    IAccessTokenVerifier private immutable _verifier;
+    IAccessTokenVerifier public verifier;
     mapping(bytes32 => bool) private _accessTokenUsed;
 
     constructor(address accessTokenVerifier) {
-        _verifier = IAccessTokenVerifier(accessTokenVerifier);
+        verifier = IAccessTokenVerifier(accessTokenVerifier);
     }
 
     modifier requiresAuth(
@@ -23,12 +23,19 @@ contract AccessTokenConsumer {
         _;
     }
 
+    /**
+     * @dev Updates the AccessTokenVerifier address this contract is pointing to.
+    */
+    function setVerifier(address newVerifier) internal {
+        verifier = IAccessTokenVerifier(newVerifier);
+    }
+
     function verify(uint8 v, bytes32 r, bytes32 s, uint256 expiry) internal view returns (bool) {
         // AU -> Already Used
         require(!_isAccessTokenUsed(v, r, s, expiry), "AccessToken: AU");
 
         AccessToken memory token = constructToken(expiry);
-        return _verifier.verify(token, v, r, s);
+        return verifier.verify(token, v, r, s);
     }
 
     function constructToken(uint256 expiry) internal view returns (AccessToken memory token) {
