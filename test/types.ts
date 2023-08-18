@@ -1,6 +1,6 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import type { Fixture } from "ethereum-waffle";
-import { AccessTokenVerifier, ConsumerMock, DummyDapp } from "../src/types";
+import { AccessTokenVerifier, ConsumerMock, DummyDapp, UpgradeableConsumerMock } from "../src/types";
 
 import type { KeyInfrastructure } from "../src/types/KeyInfrastructure";
 
@@ -9,8 +9,8 @@ declare module "mocha" {
     keyInfrastructure: KeyInfrastructure;
     verifier: AccessTokenVerifier;
     dapp: DummyDapp;
-    mock: ConsumerMock;
-    fakeMock: ConsumerMock;
+    mock: ConsumerMock | UpgradeableConsumerMock;
+    fakeMock: ConsumerMock | UpgradeableConsumerMock;
     loadFixture: <T>(fixture: Fixture<T>) => Promise<T>;
     signers: Signers;
   }
