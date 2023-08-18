@@ -5,7 +5,7 @@ import { AccessTokenConsumerUpgradeable } from "../AccessTokenConsumerUpgradeabl
 
 contract UpgradeableConsumerMock is AccessTokenConsumerUpgradeable {
 
-    function __INIT__(address verifier) external {
+    function initialize(address verifier) external initializer {
         __AccessTokenConsumer_init(verifier);
     }
 

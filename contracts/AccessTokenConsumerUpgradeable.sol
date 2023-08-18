@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./IAccessTokenVerifier.sol";
 
-contract AccessTokenConsumerUpgradeable {
+contract AccessTokenConsumerUpgradeable is Initializable {
     IAccessTokenVerifier public verifier;
     mapping(bytes32 => bool) private _accessTokenUsed;
 
     /**
      * @dev Initializes the AcessTokenConsumer by setting the AccessTokenVerifier address.
+     * This must be called in the initializer function of contracts inheriting AccessTokenConsumer.
     */
-    function __AccessTokenConsumer_init(address accessTokenVerifier) internal {
-        require(verifier == IAccessTokenVerifier(address(0)), "verifier already set");
-        verifier = IAccessTokenVerifier(accessTokenVerifier);
+    function __AccessTokenConsumer_init(address accessTokenVerifier) internal onlyInitializing {
+        if (verifier == IAccessTokenVerifier(address(0))) {
+            verifier = IAccessTokenVerifier(accessTokenVerifier);
+        }
     }
 
     modifier requiresAuth(

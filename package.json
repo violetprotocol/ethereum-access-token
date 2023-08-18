@@ -21,7 +21,6 @@
     "@nomicfoundation/hardhat-verify": "^1.0.3",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
-    "@openzeppelin/contracts-upgradeable": "^4.9.3",
     "@openzeppelin/defender-relay-client": "^1.46.0",
     "@openzeppelin/hardhat-upgrades": "^1.28.0",
     "@typechain/ethers-v5": "^9.0.0",
@@ -91,5 +90,8 @@
     "size": "hardhat size-contracts",
     "test": "hardhat test",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^4.9.3"
   }
 }
