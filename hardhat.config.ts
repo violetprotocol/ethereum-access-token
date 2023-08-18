@@ -1,5 +1,6 @@
 import "@nomiclabs/hardhat-waffle";
 import "@nomicfoundation/hardhat-verify";
+import "@nomicfoundation/hardhat-ledger";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -18,6 +19,7 @@ dotenvConfig({ path: resolve(__dirname, "./.env") });
 // Ensure that we have all the environment variables we need.
 const mnemonic: string | undefined = process.env.MNEMONIC;
 const privateKey: string | undefined = process.env.PRIVATE_KEY;
+const ledgerAddress: string | undefined = process.env.LEDGER_ACCOUNT_ADDRESS;
 
 enum RpcProvider {
   INFURA = "infura",
@@ -26,8 +28,8 @@ enum RpcProvider {
 
 const RPC_PROVIDER: RpcProvider = RpcProvider.ALCHEMY;
 
-if (!privateKey && !mnemonic) {
-  throw new Error("Please set your PRIVATE_KEY or MNEMONIC in a .env file");
+if (!privateKey && !mnemonic && !ledgerAddress) {
+  throw new Error("Please set a ledger address, a PRIVATE_KEY or MNEMONIC in a .env file");
 }
 
 const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
@@ -82,23 +84,40 @@ const getChainUrl = (network: keyof typeof chainIds): string | undefined => {
   }
 };
 
+// If a ledger address is defined, it will use that and nothing else.
+// If a private key is defined, it will use it and nothing else.
+// Otherwise, it will use the mnemonic set in env.
+const getAccounts = () => {
+  if (ledgerAddress) {
+    return {
+      accounts: undefined,
+      ledgerAccounts: [ledgerAddress],
+    };
+  } else if (privateKey) {
+    return {
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+      ledgerAccounts: undefined,
+    };
+  } else if (mnemonic) {
+    return {
+      accounts: {
+        count: 20,
+        mnemonic,
+        path: "m/44'/60'/0'/0",
+      },
+      ledgerAccounts: undefined,
+    };
+  }
+};
+
 function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
   const url = getChainUrl(network);
   if (!url) throw new Error(`Missing RPC URL for network ${network}`);
 
-  let accounts;
-
-  // Prioritise private key if it is available
-  if (privateKey) accounts = [`0x${process.env.PRIVATE_KEY}`];
-  else if (mnemonic)
-    accounts = {
-      count: 20,
-      mnemonic,
-      path: "m/44'/60'/0'/0",
-    };
+  const accountSettings = getAccounts();
 
   return {
-    accounts,
+    ...accountSettings,
     chainId: chainIds[network],
     url,
   };

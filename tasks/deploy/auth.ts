@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
 import { TaskArguments } from "hardhat/types";
-import { LedgerSigner } from "@anders-t/ethers-ledger";
 
 import { AccessTokenVerifier } from "../../src/types/AccessTokenVerifier";
 import { AccessTokenVerifier__factory } from "../../src/types/factories/AccessTokenVerifier__factory";
@@ -31,11 +30,15 @@ task("deploy:AccessTokenVerifier")
 // Before running this task, make sure that you have specified the right Etherscan API key in .env.
 task("hd:deploy:AccessTokenVerifier")
   .addParam("root", "Root key")
+  .addOptionalParam("gasPrice", "Gas price to use, in gwei")
   .setAction(async function (taskArguments: TaskArguments, { ethers, network, run }) {
-    // Change me
+    const gasPrice = taskArguments.gasPrice || "2";
+    const DEFAULT_GAS_PRICE = ethers.utils.parseUnits(gasPrice, "gwei");
     const POLYGON_GAS_PRICE = ethers.utils.parseUnits("35", "gwei");
 
-    const ledger = new LedgerSigner(ethers.provider);
+    const signer = ethers.provider.getSigner();
+    const signerAddress = await signer.getAddress();
+    console.log(`Deploying AccessTokenVerifier with signer ${signerAddress}.`);
 
     const accessTokenVerifierFactory: AccessTokenVerifier__factory = <AccessTokenVerifier__factory>(
       await ethers.getContractFactory("AccessTokenVerifier")
@@ -47,17 +50,16 @@ task("hd:deploy:AccessTokenVerifier")
       let accessTokenVerifier: AccessTokenVerifier;
       if (network.name === "polygon") {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
+          await accessTokenVerifierFactory.connect(signer).deploy(taskArguments.root, { gasPrice: POLYGON_GAS_PRICE })
         );
         console.log("accessTokenVerifier", accessTokenVerifier);
       } else {
         accessTokenVerifier = <AccessTokenVerifier>(
-          await accessTokenVerifierFactory.connect(ledger).deploy(taskArguments.root)
+          await accessTokenVerifierFactory.connect(signer).deploy(taskArguments.root, { gasPrice: DEFAULT_GAS_PRICE })
         );
       }
 
-      console.log("accessTokenVerifier", accessTokenVerifier);
-      await accessTokenVerifier.deployed();
+      await accessTokenVerifier.deployTransaction.wait(5);
       console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
 
       console.log("Verifying contract...");
