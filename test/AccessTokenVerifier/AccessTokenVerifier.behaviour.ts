@@ -85,7 +85,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
       );
     });
 
-    it.only("should fail with expired token", async function () {
+    it("should fail with expired token", async function () {
       // The data to sign
       const value = { ...this.token, expiry: 1692512434 };
 
