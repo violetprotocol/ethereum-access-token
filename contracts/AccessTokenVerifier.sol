@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./IAccessTokenVerifier.sol";
+import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./interfaces/IAccessTokenVerifier.sol";
 import { KeyInfrastructure } from "./KeyInfrastructure.sol";
 
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
@@ -96,7 +96,6 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 s
     ) internal view returns (address) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
-
         // HE -> Has Expired
         require(token.expiry > block.timestamp, "AccessToken: HE");
 

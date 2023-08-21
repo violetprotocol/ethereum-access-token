@@ -87,7 +87,7 @@ const shouldBehaveLikeAccessTokenVerifier = function () {
 
     it("should fail with expired token", async function () {
       // The data to sign
-      const value = { ...this.token, expiry: this.token.expiry - 1000 };
+      const value = { ...this.token, expiry: 1692512434 };
 
       const signature = splitSignature(await signAccessToken(this.signers.admin, this.domain, value));
 

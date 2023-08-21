@@ -3,10 +3,10 @@ import type { Artifact } from "hardhat/types";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import chai from "chai";
 
-import { DummyDapp } from "../../src/types/DummyDapp";
-import { shouldBehaveLikeAccessTokenConsumer } from "./AccessTokenConsumer.behaviour";
-import { AccessTokenVerifier, ConsumerMock } from "../../src/types";
-import { Signers } from "../types";
+import { DummyDapp } from "../../../src/types/DummyDapp";
+import { shouldBehaveLikeAccessTokenConsumer } from "../AccessTokenConsumer.behaviour";
+import { AccessTokenVerifier, ConsumerMock } from "../../../src/types";
+import { Signers } from "../../types";
 
 const { solidity } = waffle;
 chai.use(solidity);

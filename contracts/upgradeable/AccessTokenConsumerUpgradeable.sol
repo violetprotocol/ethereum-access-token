@@ -1,14 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import { IAccessTokenVerifier, AccessToken, FunctionCall } from "./interfaces/IAccessTokenVerifier.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { IAccessTokenVerifier, AccessToken, FunctionCall } from "../interfaces/IAccessTokenVerifier.sol";
 
-contract AccessTokenConsumer {
+/**
+ * @dev Implementation of `AccessTokenConsumer,` for consuming Ethereum Access Tokens (EIP-7272),
+ * compatible with OpenZeppelin UUPS upgradeable contracts.
+ */
+contract AccessTokenConsumerUpgradeable is Initializable {
     IAccessTokenVerifier public verifier;
     mapping(bytes32 => bool) private _accessTokenUsed;
 
-    constructor(address accessTokenVerifier) {
-        verifier = IAccessTokenVerifier(accessTokenVerifier);
+    /**
+     * @dev Initializes the AcessTokenConsumer by setting the AccessTokenVerifier address.
+     * This must be called in the initializer function of contracts inheriting AccessTokenConsumer.
+     */
+    function __AccessTokenConsumer_init(address accessTokenVerifier) internal onlyInitializing {
+        if (verifier == IAccessTokenVerifier(address(0))) {
+            verifier = IAccessTokenVerifier(accessTokenVerifier);
+        }
     }
 
     modifier requiresAuth(
@@ -55,29 +66,21 @@ contract AccessTokenConsumer {
     function extractInputs() public pure returns (bytes memory inputs) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            // Allocate memory from free memory pointer
             let ptr := mload(0x40)
-            // Copy calldata to memory
             calldatacopy(ptr, 0, calldatasize())
-            // Update free memory pointer to point to the end of the copied calldata
             mstore(0x40, add(ptr, calldatasize()))
 
-            // Set starting position after the first 4 bytes (function signature)
             let startPos := 0x04
-            // Add 128 bytes to the starting position to calculate the end position of the EAT params
-            // since each EAT param (v,r,s,expiry) takes 32 bytes
             let endOfSigExp := add(startPos, 0x80)
-            // Compute the size of the remaining function parameters (end of calldata - end position of EAT params)
             let totalInputSize := sub(calldatasize(), endOfSigExp)
 
-            // Overwrite inputs pointer to free memory pointer
+            // Overwrite data to calldata pointer
             inputs := ptr
 
             // Store expected length of total byte array as first value
             mstore(inputs, totalInputSize)
 
-            // Copy bytes from end of signature and expiry section to end of calldata,
-            // right after the 32 bytes (0x20) reserved for totalInputSize
+            // Copy bytes from end of signature and expiry section to end of calldata
             calldatacopy(add(inputs, 0x20), endOfSigExp, totalInputSize)
         }
     }
