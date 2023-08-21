@@ -29,7 +29,6 @@ describe("AccessTokenConsumerUpgradeable", function () {
 
   before("deploy new", async function () {
     const authArtifact: Artifact = await artifacts.readArtifact("AccessTokenVerifier");
-    const mockArtifact: Artifact = await artifacts.readArtifact("UpgradeableConsumerMock");
     const dummyDappFactory: DummyDappUpgradeable__factory = <DummyDappUpgradeable__factory>(
       await ethers.getContractFactory("DummyDappUpgradeable")
     );
