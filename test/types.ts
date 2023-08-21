@@ -1,6 +1,12 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import type { Fixture } from "ethereum-waffle";
-import { AccessTokenVerifier, ConsumerMock, DummyDapp, DummyDappUpgradeable, UpgradeableConsumerMock } from "../src/types";
+import {
+  AccessTokenVerifier,
+  ConsumerMock,
+  DummyDapp,
+  DummyDappUpgradeable,
+  UpgradeableConsumerMock,
+} from "../src/types";
 
 import type { KeyInfrastructure } from "../src/types/KeyInfrastructure";
 

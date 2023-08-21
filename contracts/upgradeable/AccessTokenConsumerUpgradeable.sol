@@ -15,7 +15,7 @@ contract AccessTokenConsumerUpgradeable is Initializable {
     /**
      * @dev Initializes the AcessTokenConsumer by setting the AccessTokenVerifier address.
      * This must be called in the initializer function of contracts inheriting AccessTokenConsumer.
-    */
+     */
     function __AccessTokenConsumer_init(address accessTokenVerifier) internal onlyInitializing {
         if (verifier == IAccessTokenVerifier(address(0))) {
             verifier = IAccessTokenVerifier(accessTokenVerifier);
@@ -36,7 +36,7 @@ contract AccessTokenConsumerUpgradeable is Initializable {
 
     /**
      * @dev Updates the AccessTokenVerifier address this contract is pointing to.
-    */
+     */
     function setVerifier(address newVerifier) internal {
         verifier = IAccessTokenVerifier(newVerifier);
     }

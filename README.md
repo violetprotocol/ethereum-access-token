@@ -26,21 +26,12 @@ If the function to be called is the following:
 
 ```solidity
 function transfer(address recipient, uint256 amount) public;
-
 ```
 
 then the version that requires authorisation is the following:
 
 ```solidity
-function transfer(
-  uint8 v,
-  bytes32 r,
-  bytes32 s,
-  uint256 expiry,
-  address recipient,
-  uint256 amount
-) public requiresAuth;
-
+function transfer(uint8 v, bytes32 r, bytes32 s, uint256 expiry, address recipient, uint256 amount) public requiresAuth;
 ```
 
 and parameters to the function are the original `address recipient` and `uint256 amount` which will be encoded as follows:

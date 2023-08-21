@@ -25,7 +25,7 @@ contract AccessTokenConsumer {
 
     /**
      * @dev Updates the AccessTokenVerifier address this contract is pointing to.
-    */
+     */
     function setVerifier(address newVerifier) internal {
         verifier = IAccessTokenVerifier(newVerifier);
     }

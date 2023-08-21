@@ -4,7 +4,6 @@ pragma solidity >=0.8.13;
 import { AccessTokenConsumerUpgradeable } from "../upgradeable/AccessTokenConsumerUpgradeable.sol";
 
 contract UpgradeableConsumerMock is AccessTokenConsumerUpgradeable {
-
     function initialize(address verifier) external initializer {
         __AccessTokenConsumer_init(verifier);
     }

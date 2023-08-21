@@ -11,7 +11,7 @@ contract DummyDapp is AccessTokenConsumer {
         _owner = msg.sender;
     }
 
-     function updateVerifier(address newVerifier) external {
+    function updateVerifier(address newVerifier) external {
         require(msg.sender == _owner);
         setVerifier(newVerifier);
     }

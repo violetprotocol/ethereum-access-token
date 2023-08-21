@@ -4,7 +4,13 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signe
 import chai from "chai";
 
 import { shouldBehaveLikeAccessTokenConsumer } from "../AccessTokenConsumer.behaviour";
-import { AccessTokenVerifier, UpgradeableConsumerMock, DummyDappUpgradeable__factory, DummyDappUpgradeable, UpgradeableConsumerMock__factory } from "../../../src/types";
+import {
+  AccessTokenVerifier,
+  UpgradeableConsumerMock,
+  DummyDappUpgradeable__factory,
+  DummyDappUpgradeable,
+  UpgradeableConsumerMock__factory,
+} from "../../../src/types";
 import { Signers } from "../../types";
 
 const { solidity } = waffle;
@@ -24,8 +30,12 @@ describe("AccessTokenConsumerUpgradeable", function () {
   before("deploy new", async function () {
     const authArtifact: Artifact = await artifacts.readArtifact("AccessTokenVerifier");
     const mockArtifact: Artifact = await artifacts.readArtifact("UpgradeableConsumerMock");
-    const dummyDappFactory: DummyDappUpgradeable__factory = <DummyDappUpgradeable__factory>await ethers.getContractFactory("DummyDappUpgradeable");
-    const mockFactory: UpgradeableConsumerMock__factory = <UpgradeableConsumerMock__factory>await ethers.getContractFactory("UpgradeableConsumerMock");
+    const dummyDappFactory: DummyDappUpgradeable__factory = <DummyDappUpgradeable__factory>(
+      await ethers.getContractFactory("DummyDappUpgradeable")
+    );
+    const mockFactory: UpgradeableConsumerMock__factory = <UpgradeableConsumerMock__factory>(
+      await ethers.getContractFactory("UpgradeableConsumerMock")
+    );
 
     this.auth = <AccessTokenVerifier>(
       await waffle.deployContract(this.signers.admin, authArtifact, [this.signers.admin.address])
@@ -47,7 +57,6 @@ describe("AccessTokenConsumerUpgradeable", function () {
       await upgrades.deployProxy(mockFactory, [this.auth.address], { initializer: "initialize" })
     );
     await this.fakeMock.deployed();
-
   });
 
   before("construct test values", async function () {
