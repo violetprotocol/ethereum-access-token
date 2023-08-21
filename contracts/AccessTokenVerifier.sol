@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./IAccessTokenVerifier.sol";
+import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./interfaces/IAccessTokenVerifier.sol";
 import { KeyInfrastructure } from "./KeyInfrastructure.sol";
 
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {

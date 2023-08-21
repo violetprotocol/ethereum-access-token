@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import { AccessTokenConsumerUpgradeable } from "../AccessTokenConsumerUpgradeable.sol";
+import { AccessTokenConsumerUpgradeable } from "../upgradeable/AccessTokenConsumerUpgradeable.sol";
 
 contract DummyDappUpgradeable is Initializable, OwnableUpgradeable, UUPSUpgradeable, AccessTokenConsumerUpgradeable {
     function initialize(address _EATVerifier) public initializer {

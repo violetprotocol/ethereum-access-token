@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import { AccessTokenConsumerUpgradeable } from "../AccessTokenConsumerUpgradeable.sol";
+import { AccessTokenConsumerUpgradeable } from "../upgradeable/AccessTokenConsumerUpgradeable.sol";
 
 contract UpgradeableConsumerMock is AccessTokenConsumerUpgradeable {
 

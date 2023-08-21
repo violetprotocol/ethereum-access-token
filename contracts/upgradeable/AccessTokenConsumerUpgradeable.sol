@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "./IAccessTokenVerifier.sol";
+import "../interfaces/IAccessTokenVerifier.sol";
 
 contract AccessTokenConsumerUpgradeable is Initializable {
     IAccessTokenVerifier public verifier;
