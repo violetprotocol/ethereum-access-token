@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./interfaces/IAccessTokenVerifier.sol";
 import { KeyInfrastructure } from "./KeyInfrastructure.sol";
+// solhint-disable-next-line
 import "hardhat/console.sol";
 
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
@@ -97,7 +98,9 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         bytes32 s
     ) internal view returns (address) {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), hash(token)));
+        // solhint-disable-next-line
         console.log(token.expiry);
+        // solhint-disable-next-line
         console.log(block.timestamp);
         // HE -> Has Expired
         require(token.expiry > block.timestamp, "AccessToken: HE");
