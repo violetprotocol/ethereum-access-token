@@ -4,6 +4,10 @@ pragma solidity >=0.8.13;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../interfaces/IAccessTokenVerifier.sol";
 
+/**
+ * @dev Implementation of `AccessTokenConsumer,` for consuming Ethereum Access Tokens (EIP-7272),
+ * compatible with OpenZeppelin UUPS upgradeable contracts.
+ */
 contract AccessTokenConsumerUpgradeable is Initializable {
     IAccessTokenVerifier public verifier;
     mapping(bytes32 => bool) private _accessTokenUsed;
