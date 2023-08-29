@@ -4,6 +4,14 @@ pragma solidity >=0.8.13;
 import { IAccessTokenVerifier, AccessToken, FunctionCall, EIP712Domain } from "./interfaces/IAccessTokenVerifier.sol";
 import { KeyInfrastructure } from "./KeyInfrastructure.sol";
 
+/**
+ * @title AccessTokenVerifier
+ * @dev Implementation of the AccessTokenVerifier interface.
+ * This contract is used to verify Ethereum Access Tokens, their integrity, and provenance by checking that
+ * it was signed by an active EAT issuer registered in this contract (see `KeyInfrastructure`).
+ * Ethereum Access Tokens are built upon EIP-712 so this contract contains the logic for constructing the domain separator
+ * and hashes of typed data for the specific encoding of Ethereum Access Tokens.
+ */
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     bytes32 private constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
@@ -60,10 +68,16 @@ contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
         return keccak256(abi.encode(TOKEN_TYPEHASH, token.expiry, hash(token.functionCall)));
     }
 
+    /**
+     * @inheritdoc IAccessTokenVerifier
+     */
     function verifySignerOf(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) external view returns (address) {
         return _retrieveSignerFromToken(token, v, r, s);
     }
 
+    /**
+     * @inheritdoc IAccessTokenVerifier
+     */
     function verify(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) public view override returns (bool) {
         address signer = _retrieveSignerFromToken(token, v, r, s);
         return _isActiveIssuer[signer];

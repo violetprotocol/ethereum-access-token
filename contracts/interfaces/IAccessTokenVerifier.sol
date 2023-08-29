@@ -20,6 +20,19 @@ struct AccessToken {
     FunctionCall functionCall;
 }
 
+/**
+ * @title AccessTokenVerifier Interface
+ * @notice Used to verify Ethereum Access Tokens
+ */
 interface IAccessTokenVerifier {
+    /**
+     * @dev Verifies an Ethereum Access Token, checking its integrity and that it was signed by
+     * an expected, active EAT issuer.
+     */
     function verify(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) external view returns (bool);
+
+    /**
+     * @dev Returns the signer's address of an AccessToken.
+     */
+    function verifySignerOf(AccessToken calldata token, uint8 v, bytes32 r, bytes32 s) external view returns (address);
 }
