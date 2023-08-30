@@ -59,7 +59,7 @@ contract KeyInfrastructure {
         }
     }
 
-     /**
+    /**
      * @dev Remove `issuers` from the list of Active Issuers.
      * Only callable by the Intermediate key.
      */

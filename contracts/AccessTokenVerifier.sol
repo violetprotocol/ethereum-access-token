@@ -9,8 +9,8 @@ import { KeyInfrastructure } from "./KeyInfrastructure.sol";
  * @dev Implementation of the AccessTokenVerifier interface.
  * This contract is used to verify Ethereum Access Tokens, their integrity, and provenance by checking that
  * it was signed by an active EAT issuer registered in this contract (see `KeyInfrastructure`).
- * Ethereum Access Tokens are built upon EIP-712 so this contract contains the logic for constructing the domain separator
- * and hashes of typed data for the specific encoding of Ethereum Access Tokens.
+ * Ethereum Access Tokens are built upon EIP-712 so this contract contains the logic for constructing
+ * the domain separator and hashes of typed data for the specific encoding of Ethereum Access Tokens.
  */
 contract AccessTokenVerifier is IAccessTokenVerifier, KeyInfrastructure {
     bytes32 private constant EIP712DOMAIN_TYPEHASH =

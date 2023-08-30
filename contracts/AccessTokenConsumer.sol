@@ -3,7 +3,6 @@ pragma solidity >=0.8.13;
 
 import { IAccessTokenVerifier, AccessToken, FunctionCall } from "./interfaces/IAccessTokenVerifier.sol";
 
-
 /**
  * @title AccessTokenConsumer
  * @dev The AccessTokenConsumer contract is inherited by contracts that need to gate functions
