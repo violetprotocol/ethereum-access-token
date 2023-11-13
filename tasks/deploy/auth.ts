@@ -20,6 +20,7 @@ task("deploy:AccessTokenVerifier")
     console.log("AccessTokenVerifier deployed to: ", accessTokenVerifier.address);
 
     console.log("Verifying contract...");
+    await accessTokenVerifier.deployTransaction.wait(5);
 
     await run("verify:verify", {
       address: accessTokenVerifier.address,
