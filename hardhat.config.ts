@@ -53,6 +53,7 @@ const chainIds = {
   "polygon-mumbai": 80001,
   rinkeby: 4,
   kovan: 42,
+  sepolia: 11155111
 };
 
 const getAlchemyUrl = (network: keyof typeof chainIds) => {
@@ -69,6 +70,8 @@ const getAlchemyUrl = (network: keyof typeof chainIds) => {
       return process.env.POLYGON_MUMBAI_RPC_URL;
     case "polygon-mainnet":
       return process.env.POLYGON_MAINNET_RPC_URL;
+    case "sepolia":
+      return process.env.SEPOLIA_RPC_URL;
     default:
       throw new Error(`No Alchemy URL configured for the ${network} network`);
   }
@@ -135,6 +138,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       mainnet: `${process.env.ETHERSCAN_API_KEY}`,
+      sepolia: `${process.env.ETHERSCAN_API_KEY}`,
       arbitrumOne: `${process.env.ARBSCAN_API_KEY}`,
       optimisticEthereum: `${process.env.OPTIMISM_API_KEY}`,
       optimisticGoerli: `${process.env.OPTIMISM_API_KEY}`,
@@ -158,6 +162,7 @@ const config: HardhatUserConfig = {
     polygonMumbai: getChainConfig("polygon-mumbai"),
     // rinkeby: getChainConfig("rinkeby"),
     // kovan: getChainConfig("kovan"),
+    sepolia: getChainConfig("sepolia")
   },
   paths: {
     artifacts: "./artifacts",
