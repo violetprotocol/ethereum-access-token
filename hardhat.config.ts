@@ -5,6 +5,7 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-contract-sizer";
+import "hardhat-gas-reporter";
 import "@openzeppelin/hardhat-upgrades";
 
 import "./tasks";
@@ -166,8 +167,9 @@ const config: HardhatUserConfig = {
     tests: "./test",
   },
   solidity: {
-    version: "0.8.13",
+    version: "0.8.24",
     settings: {
+      viaIR: true,
       metadata: {
         // Not including the metadata hash
         // https://github.com/paulrberg/solidity-template/issues/31
