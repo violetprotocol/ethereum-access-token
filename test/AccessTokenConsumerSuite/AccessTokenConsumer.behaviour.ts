@@ -341,7 +341,7 @@ const performTestSuiteForFunction = async (
         contract
           .connect(extraAccounts[0])
           [functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: VF");
+      ).to.be.revertedWith("VerificationFailed");
     });
 
     it("with expired token should revert", async function () {
@@ -370,7 +370,7 @@ const performTestSuiteForFunction = async (
           this.token.expiry.add(50),
           ...parameters,
         ),
-      ).to.be.revertedWith("AccessToken: VF");
+      ).to.be.revertedWith("VerificationFailed");
     });
 
     it("with used EAT should revert", async function () {
@@ -380,7 +380,7 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: AU");
+      ).to.be.revertedWith("AccessTokenUsed");
     });
 
     it("with incorrect signer should revert", async function () {
@@ -388,7 +388,7 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: VF");
+      ).to.be.revertedWith("VerificationFailed");
     });
 
     it("with incorrect function signature should revert", async function () {
@@ -404,13 +404,13 @@ const performTestSuiteForFunction = async (
 
       await expect(
         contract[functionName](signature.v, signature.r, signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: VF");
+      ).to.be.revertedWith("VerificationFailed");
     });
 
     it("with incorrect target contract should revert", async function () {
       await expect(
         fakeMock[functionName](this.signature.v, this.signature.r, this.signature.s, this.token.expiry, ...parameters),
-      ).to.be.revertedWith("AccessToken: VF");
+      ).to.be.revertedWith("VerificationFailed");
     });
   });
 };

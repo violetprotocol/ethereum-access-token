@@ -26,7 +26,7 @@ contract DummyDappUpgradeable is Initializable, OwnableUpgradeable, UUPSUpgradea
         uint256 expiry,
         address,
         uint256
-    ) public requiresAuth(v, r, s, expiry) returns (bool) {
+    ) public requiresAuth returns (bool) {
         return true;
     }
 }
