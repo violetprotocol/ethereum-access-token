@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.13;
 
-import { IAccessTokenVerifier, AccessToken, FunctionCall } from "./interfaces/IAccessTokenVerifier.sol";
-import "./LibAccessTokenConsumer.sol";
+import { IAccessTokenVerifier } from "./interfaces/IAccessTokenVerifier.sol";
+import { LibAccessTokenConsumer } from "./LibAccessTokenConsumer.sol";
 
 /**
  * @title AccessTokenConsumer
@@ -18,8 +18,9 @@ contract AccessTokenConsumer {
     IAccessTokenVerifier public verifier;
     // Stores whether an EAT has already been used
     mapping(bytes32 => bool) private _accessTokenUsed;
-    error VerificationFailed();
+
     error AccessTokenUsed();
+    error VerificationFailed();
 
     constructor(address accessTokenVerifier) {
         verifier = IAccessTokenVerifier(accessTokenVerifier);

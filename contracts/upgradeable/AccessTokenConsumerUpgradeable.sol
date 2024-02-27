@@ -2,8 +2,8 @@
 pragma solidity >=0.8.13;
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { IAccessTokenVerifier, AccessToken, FunctionCall } from "../interfaces/IAccessTokenVerifier.sol";
-import "../LibAccessTokenConsumer.sol";
+import { IAccessTokenVerifier } from "../interfaces/IAccessTokenVerifier.sol";
+import { LibAccessTokenConsumer } from "../LibAccessTokenConsumer.sol";
 
 /**
  * @title AccessTokenConsumerUpgradeable
@@ -21,6 +21,7 @@ contract AccessTokenConsumerUpgradeable is Initializable {
     IAccessTokenVerifier public verifier;
     // Stores whether an EAT has already been used
     mapping(bytes32 => bool) private _accessTokenUsed;
+
     error VerificationFailed();
     error AccessTokenUsed();
 
